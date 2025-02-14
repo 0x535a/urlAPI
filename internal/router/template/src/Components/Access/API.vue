@@ -39,7 +39,7 @@ function setFilter(filter) {
         <mdui-list-item rounded slot="custom"
                         v-for="(value, key) in map"
                         @click="setFilter(key)">
-          {{ key === "" ? "No API" : key }} - {{ value }}次
+          {{ key === "" ? "N/A" : key }} - {{ value }}次
         </mdui-list-item>
       </div>
     </mdui-collapse-item>
