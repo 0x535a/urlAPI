@@ -32,7 +32,7 @@ function setFilter(filter) {
   <mdui-collapse>
     <mdui-collapse-item rounded>
       <mdui-list-item slot="header" icon="perm_device_information" rounded @click="getValue(props.tasks)">
-        Model
+        模型
         <mdui-icon slot="end-icon" name="keyboard_arrow_down"></mdui-icon>
       </mdui-list-item>
       <div style="margin-left: 2.5rem">
