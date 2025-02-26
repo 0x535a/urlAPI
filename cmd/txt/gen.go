@@ -47,8 +47,7 @@ func GenRequest(IP, From, Model, API, Target string, Referer *url.URL) (TxtRespo
 		security.WithAPI(API),
 		security.WithTarget(Target),
 		security.WithDomain(Domain),
-		security.WithIP(IP),
-		security.WithTarget(Target)))
+		security.WithIP(IP)))
 	if err != nil {
 		return TxtResponse{}, err
 	}
