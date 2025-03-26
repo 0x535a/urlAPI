@@ -2,41 +2,11 @@ package util
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
-	"net/url"
+	"net/http"
 	"regexp"
-	"strings"
 )
-
-// 只接受原始Referer
-func RefererChecker(referers *[]string, referer *string) bool {
-	domainParse, _ := url.Parse(*referer)
-	domain := domainParse.Hostname()
-	for _, r := range *referers {
-		rgx := "^" + strings.ReplaceAll(regexp.QuoteMeta(r), `\*`, ".*") + "$"
-		match, err := regexp.MatchString(rgx, domain)
-		if err != nil {
-			continue
-		}
-		if match {
-			return true
-		}
-	}
-	return false
-}
-
-// api为空的时候返回正确
-func ListChecker(apis *[]string, api *string) bool {
-	if *api == "" {
-		return true
-	}
-	for _, a := range *apis {
-		if a == *api {
-			return true
-		}
-	}
-	return false
-}
 
 // 获取设备类型
 func GetDeviceType(ua string) string {
@@ -75,4 +45,18 @@ func GetRegion(ip string) string {
 		return "Unknown"
 	}
 	return response.IPData.Info1
+}
+
+func Downloader(url string) ([]byte, error) {
+	resp, err := GlobalHTTPClient.Get(url)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		return nil, errors.Join(errors.New("Util Downloader"), err, errors.New(resp.Status))
+	}
+	defer resp.Body.Close()
+	ret, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Join(errors.New("Util Downloader"), err)
+	} else {
+		return ret, nil
+	}
 }
