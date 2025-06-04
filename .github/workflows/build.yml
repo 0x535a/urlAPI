@@ -36,7 +36,7 @@ jobs:
 
       - name: Install cross toolchains
         run: |
-          set -e
+          set -x
           sudo apt-get update
           sudo apt-get install -y musl-tools gcc-mingw-w64 clang lld wget tar xz-utils unzip
           wget -q https://github.com/troglobit/misc/releases/download/11-20211120/aarch64-linux-musl-cross.tgz
