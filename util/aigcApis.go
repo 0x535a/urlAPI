@@ -3,6 +3,7 @@ package util
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/pkg/errors"
 	"io"
 	"log"
@@ -89,6 +90,7 @@ func AlibabaImg(token, prompt, model, size string) ([]byte, string, error) {
 
 	for status := response.Output.TaskStatus; status == "PENDING" || status == "RUNNING"; status = response.Output.TaskStatus {
 		time.Sleep(1 * time.Second)
+		fmt.Println(status)
 		if err = json.Unmarshal(alibabaFetchImgTask(id, token), &response); err != nil {
 			timer.Stop()
 			return nil, "", errors.WithStack(err)

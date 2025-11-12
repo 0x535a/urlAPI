@@ -2,11 +2,12 @@ package processor
 
 import (
 	"encoding/json"
+	"urlAPI/database"
+	"urlAPI/util"
+
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
-	"urlAPI/database"
-	"urlAPI/util"
 )
 
 func newRepo(info *Session, data *database.Session) error {
@@ -27,6 +28,7 @@ func newRepo(info *Session, data *database.Session) error {
 	default:
 		err = errors.WithStack(errors.New(info.RepoAPI + " is not supported"))
 	}
+	content = util.LinkFilter(content)
 	jsonString, err := json.Marshal(content)
 	if err != nil {
 		return err

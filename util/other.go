@@ -26,3 +26,34 @@ func ErrorPrinter(err error) {
 		}
 	}
 }
+
+var excludedFiles = []string{
+	".gitignore",
+	".DS_Store",
+	".ini",
+	".yml",
+	".yaml",
+	".md",
+	".txt",
+	".json",
+	".xml",
+	".csv",
+	".log",
+}
+
+func LinkFilter(links []string) []string {
+	var ret []string
+	for _, link := range links {
+		excluded := false
+		for _, exclude := range excludedFiles {
+			if strings.HasSuffix(link, exclude) {
+				excluded = true
+				break
+			}
+		}
+		if !excluded {
+			ret = append(ret, link)
+		}
+	}
+	return ret
+}
