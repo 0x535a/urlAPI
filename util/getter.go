@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"github.com/pkg/errors"
 	"io"
 	"math/big"
 	"net/http"
@@ -14,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // 获取设备类型
@@ -40,7 +41,7 @@ func GetRegion(ip string) string {
 	if value, ok := IPTmp[ip]; ok {
 		return value
 	}
-	url := "https://api.vore.top/api/IPdata?ip=" + ip
+	url := "https://api.live.bilibili.com/ip_service/v1/ip_service/get_ip_addr?ip=" + ip
 	resp, err := GlobalHTTPClient.Get(url)
 	if err != nil {
 		return "Unknown"
@@ -55,11 +56,19 @@ func GetRegion(ip string) string {
 	if err != nil {
 		return "Unknown"
 	}
+
+	var region string
+	if response.Data.Country == "中国" {
+		region = response.Data.Province
+	} else {
+		region = response.Data.Country
+	}
 	if len(IPTmp) >= 1000 {
 		IPTmp = make(map[string]string)
 	}
-	IPTmp[ip] = response.IPData.Info1
-	return response.IPData.Info1
+	
+	IPTmp[ip] = region
+	return region
 }
 
 func Downloader(url string) ([]byte, error) {
