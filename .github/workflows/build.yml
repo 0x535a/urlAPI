@@ -2,8 +2,8 @@ name: Build
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - dev
 
 jobs:
   build-linux-windows:
@@ -45,7 +45,6 @@ jobs:
           wget -q https://github.com/mstorsjo/llvm-mingw/releases/download/20250430/llvm-mingw-20250430-ucrt-ubuntu-22.04-x86_64.tar.xz
           tar -xf llvm-mingw-20250430-ucrt-ubuntu-22.04-x86_64.tar.xz
           echo "$PWD/llvm-mingw-20250430-ucrt-ubuntu-22.04-x86_64/bin" >> $GITHUB_PATH
-
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
@@ -64,7 +63,6 @@ jobs:
         run: |
           mkdir -p bin
           go build -o bin/urlAPI_${GOOS}_${GOARCH}${{ matrix.ext }} .
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -104,30 +102,8 @@ jobs:
         run: |
           mkdir -p bin
           go build -o bin/urlAPI_${GOOS}_${GOARCH}${{ matrix.ext }} .
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: urlAPI-binaries-${{ matrix.goos }}-${{ matrix.goarch }}
           path: bin/
-
-  release:
-    needs: [build-linux-windows, build-macos]
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-    steps:
-      - name: Download all build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: dist
-
-      - name: Display downloaded files
-        run: ls -R dist
-
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: dist/**/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
