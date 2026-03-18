@@ -96,10 +96,17 @@
 
 可以使用项目中的`Dockerfile`自行构建，也可以使用下面的命令来运行
 ```bash
+# 前后端统一部署
 docker run -d --name urlapi -p %EXPOSE_PORT%:2233 -v %LOCAL_DATA_PLACE%:/app/assets 0w0w0/urlapi:latest
 
 # e.g
 docker run -d --name urlapi -p 8080:2233 -v /home/stephenzeng/dockerData/urlAPI:/app/assets 0w0w0/urlapi:latest
+
+# 前端独立部署
+docker run -d --name urlapi-frontend -p %EXPOSE_PORT%:80 -e BACKEND_URL=http://your-backend.url 0w0w0/urlapi-frontend:latest
+
+# e.g
+docker run -d --name urlapi-frontend -p 8080:80 -e BACKEND_URL=http://your-backend.url 0w0w0/urlapi-frontend:latest
 ```
 + 镜像目前`latest`和具体版本号两种tag，建议使用`latest`。
 + arm版本的镜像为`0w0w0/urlapi-arm`

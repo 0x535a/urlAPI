@@ -1,0 +1,14 @@
+services:
+  urlapi:
+    build:
+      context: .
+      dockerfile: Dockerfile.d/amd64
+    container_name: urlapi
+    ports:
+      - "8080:2233"
+    volumes:
+      - urlapi-data:/app/assets
+    restart: unless-stopped
+
+volumes:
+  urlapi-data:
