@@ -60,6 +60,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile.d/frontend-ard64
+          file: ./Dockerfile.d/frontend-arm64
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/urlapi-frontend-arm:${{ env.TAG }}
