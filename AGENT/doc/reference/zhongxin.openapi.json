@@ -1,0 +1,3353 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "默认模块",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "User"
+    },
+    {
+      "name": "WorkPeriod"
+    },
+    {
+      "name": "Worker"
+    },
+    {
+      "name": "旧系统"
+    },
+    {
+      "name": "Machine"
+    },
+    {
+      "name": "Order"
+    },
+    {
+      "name": "Notification"
+    },
+    {
+      "name": "Version"
+    },
+    {
+      "name": "后端测试用"
+    }
+  ],
+  "paths": {
+    "/user/login": {
+      "post": {
+        "summary": "用户登录",
+        "deprecated": false,
+        "description": "使用wxToken来获取wxid\nhttps://developers.weixin.qq.com/miniprogram/dev/api/open-api/login/wx.login.html",
+        "tags": [
+          "User"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "wxToken": {
+                    "type": "string",
+                    "description": "wx.login()后获取的code"
+                  }
+                },
+                "required": [
+                  "wxToken"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "expiresOn": {
+                          "type": "integer"
+                        },
+                        "bearerToken": {
+                          "type": "string"
+                        },
+                        "user": {
+                          "$ref": "#/components/schemas/UserPersist"
+                        }
+                      },
+                      "required": [
+                        "expiresOn",
+                        "bearerToken",
+                        "user"
+                      ]
+                    },
+                    "msg": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/user/bind": {
+      "post": {
+        "summary": "用户绑定",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "User"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "wxToken": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "wxToken",
+                  "name",
+                  "phone"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/UserPersist"
+                        },
+                        "bearerToken": {
+                          "type": "string"
+                        },
+                        "expiresOn": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "user",
+                        "bearerToken",
+                        "expiresOn"
+                      ]
+                    },
+                    "msg": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/workPeriod/start": {
+      "post": {
+        "summary": "开工",
+        "deprecated": false,
+        "description": "使用bearerToken来获取userID\n开工接口不返回machineONPeriods\n开工发通知给对应工人",
+        "tags": [
+          "WorkPeriod"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "machineID": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "machineID"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "title": "内部ID",
+                          "description": "system"
+                        },
+                        "workerID": {
+                          "type": "string",
+                          "title": "工人ID",
+                          "description": "system"
+                        },
+                        "orderID": {
+                          "type": "string",
+                          "title": "订单ID",
+                          "description": "system"
+                        },
+                        "machineID": {
+                          "type": "string",
+                          "title": "机器ID",
+                          "description": "system"
+                        },
+                        "startTime": {
+                          "type": "integer",
+                          "description": "preview"
+                        },
+                        "endTime": {
+                          "type": "integer",
+                          "description": "preview"
+                        },
+                        "isMachineDataMerged": {
+                          "type": "boolean",
+                          "description": "preview"
+                        },
+                        "validTimeSeconds": {
+                          "type": "integer",
+                          "title": "有效机器时间",
+                          "description": "preview"
+                        },
+                        "machineName": {
+                          "type": "string",
+                          "description": "preview"
+                        },
+                        "orderName": {
+                          "type": "string",
+                          "description": "preview"
+                        },
+                        "unitPriceYuan": {
+                          "type": "number",
+                          "description": "preview",
+                          "title": "机器价格"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "workerID",
+                        "orderID",
+                        "machineID",
+                        "startTime",
+                        "endTime",
+                        "isMachineDataMerged",
+                        "validTimeSeconds",
+                        "machineName",
+                        "orderName",
+                        "unitPriceYuan"
+                      ]
+                    },
+                    "code": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "data",
+                    "code"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/workPeriod/stop": {
+      "post": {
+        "summary": "下工",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "WorkPeriod"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workPeriodID": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "workPeriodID"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "title": "内部ID",
+                          "description": "system"
+                        },
+                        "workerID": {
+                          "type": "string",
+                          "title": "工人ID",
+                          "description": "system"
+                        },
+                        "orderID": {
+                          "type": "string",
+                          "title": "订单ID",
+                          "description": "system"
+                        },
+                        "machineID": {
+                          "type": "string",
+                          "title": "机器ID",
+                          "description": "system"
+                        },
+                        "startTime": {
+                          "type": "integer",
+                          "description": "preview"
+                        },
+                        "endTime": {
+                          "type": "integer",
+                          "description": "preview"
+                        },
+                        "isMachineDataMerged": {
+                          "type": "boolean",
+                          "description": "preview"
+                        },
+                        "validTimeSeconds": {
+                          "type": "integer",
+                          "title": "有效机器时间",
+                          "description": "preview"
+                        },
+                        "machineName": {
+                          "type": "string",
+                          "description": "preview"
+                        },
+                        "orderName": {
+                          "type": "string",
+                          "description": "preview"
+                        },
+                        "unitPriceYuan": {
+                          "type": "number",
+                          "description": "preview",
+                          "title": "机器价格"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "workerID",
+                        "orderID",
+                        "machineID",
+                        "startTime",
+                        "endTime",
+                        "isMachineDataMerged",
+                        "validTimeSeconds",
+                        "machineName",
+                        "orderName",
+                        "unitPriceYuan"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "msg",
+                    "code",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/workPeriod/get": {
+      "get": {
+        "summary": "基础信息",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "WorkPeriod"
+        ],
+        "parameters": [
+          {
+            "name": "workPeriodIDs",
+            "in": "query",
+            "description": "逗号分隔",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "title": "内部ID",
+                            "description": "system"
+                          },
+                          "workerID": {
+                            "type": "string",
+                            "title": "工人ID",
+                            "description": "system"
+                          },
+                          "orderID": {
+                            "type": "string",
+                            "title": "订单ID",
+                            "description": "system"
+                          },
+                          "machineID": {
+                            "type": "string",
+                            "title": "机器ID",
+                            "description": "system"
+                          },
+                          "startTime": {
+                            "type": "integer",
+                            "description": "preview"
+                          },
+                          "endTime": {
+                            "type": "integer",
+                            "description": "preview"
+                          },
+                          "isMachineDataMerged": {
+                            "type": "boolean",
+                            "description": "preview"
+                          },
+                          "validTimeSeconds": {
+                            "type": "integer",
+                            "title": "有效机器时间",
+                            "description": "preview"
+                          },
+                          "machineName": {
+                            "type": "string",
+                            "description": "preview"
+                          },
+                          "orderName": {
+                            "type": "string",
+                            "description": "preview"
+                          },
+                          "unitPriceYuan": {
+                            "type": "number",
+                            "description": "preview",
+                            "title": "机器价格"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "workerID",
+                          "orderID",
+                          "machineID",
+                          "startTime",
+                          "endTime",
+                          "isMachineDataMerged",
+                          "validTimeSeconds",
+                          "machineName",
+                          "orderName",
+                          "unitPriceYuan"
+                        ]
+                      }
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "msg",
+                    "code"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/workPeriod/update": {
+      "patch": {
+        "summary": "管理：修改工作时段",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "WorkPeriod"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workPeriodID": {
+                    "type": "string"
+                  },
+                  "workerID": {
+                    "type": "string",
+                    "title": "工人ID"
+                  },
+                  "orderID": {
+                    "type": "string",
+                    "title": "订单ID"
+                  },
+                  "machineID": {
+                    "type": "string",
+                    "title": "机器ID"
+                  },
+                  "startTime": {
+                    "type": "integer"
+                  },
+                  "endTime": {
+                    "type": "integer"
+                  },
+                  "isMachineDataMerged": {
+                    "type": "boolean"
+                  },
+                  "validTimeSeconds": {
+                    "type": "integer",
+                    "title": "有效机器时间",
+                    "description": "preview"
+                  },
+                  "machineName": {
+                    "type": "string",
+                    "description": "preview"
+                  },
+                  "orderName": {
+                    "type": "string",
+                    "description": "preview"
+                  },
+                  "unitPriceYuan": {
+                    "type": "number",
+                    "description": "preview",
+                    "title": "机器价格"
+                  },
+                  "machineONPeriods": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "startTime": {
+                          "type": "integer"
+                        },
+                        "endTime": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "startTime",
+                        "endTime"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "workPeriodID",
+                  "validTimeSeconds",
+                  "machineName",
+                  "orderName",
+                  "unitPriceYuan"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/WorkPeriodPersist"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/workPeriod/delete": {
+      "delete": {
+        "summary": "管理：删除工作时段",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "WorkPeriod"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workPeriodID": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "workPeriodID"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/workPeriod/list": {
+      "get": {
+        "summary": "管理：查询工作时间段列表",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "WorkPeriod"
+        ],
+        "parameters": [
+          {
+            "name": "startTime",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "endTime",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "workerID",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "machineID",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderID",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/WorkPeriodPersist"
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/worker/getSalaryDetails": {
+      "get": {
+        "summary": "管理*：查询合作分红详情",
+        "deprecated": false,
+        "description": "查询多个时只给数字不给详情",
+        "tags": [
+          "Worker"
+        ],
+        "parameters": [
+          {
+            "name": "workerIDs",
+            "in": "query",
+            "description": "逗号分割",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startTime",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "endTime",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "salaryYuan": {
+                            "type": "integer"
+                          },
+                          "details": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/WorkPeriodPersist"
+                            }
+                          },
+                          "user": {
+                            "$ref": "#/components/schemas/UserPersist"
+                          }
+                        },
+                        "required": [
+                          "user"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/worker/get": {
+      "get": {
+        "summary": "管理*：查询工人基本信息",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "Worker"
+        ],
+        "parameters": [
+          {
+            "name": "workerIDs",
+            "in": "query",
+            "description": "逗号分隔，若未填根据token查自己",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UserPersist"
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/worker/getSalaryOverview": {
+      "get": {
+        "summary": "管理：查询合作分红概览",
+        "deprecated": false,
+        "description": "获得合作分红的概览，参照getSalaryDetails\n关于月份的时间段，比如2025年11月就对应着`/worker/getSalaryDetails`中startTime为2025年11月1日的早上8:00，endTime为2025年12月1日早上7:59",
+        "tags": [
+          "Worker"
+        ],
+        "parameters": [
+          {
+            "name": "workerIDs",
+            "in": "query",
+            "description": "逗号分割",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "timeYear",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "timeMonth",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "title": "工人内部ID"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "salaryYuan": {
+                            "type": "integer"
+                          },
+                          "workingTime": {
+                            "type": "number",
+                            "description": "工人在区间内所有WorkPeriod的ValidTimeSeconds之和",
+                            "title": "秒"
+                          },
+                          "stoppingTime": {
+                            "type": "number",
+                            "description": "totalTime-workingTime",
+                            "title": "秒"
+                          },
+                          "totalTime": {
+                            "type": "number",
+                            "description": "工人在区间内所有WorkPeriod的时间爱你之和",
+                            "title": "秒"
+                          },
+                          "efficiency": {
+                            "type": "number",
+                            "description": "workingTime/totalTime"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "workingTime",
+                          "stoppingTime",
+                          "totalTime",
+                          "efficiency"
+                        ]
+                      }
+                    },
+                    "timeYear": {
+                      "type": "integer",
+                      "description": "传入的年份"
+                    },
+                    "timeMonth": {
+                      "type": "integer",
+                      "description": "传入的月份"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "data",
+                    "timeYear",
+                    "timeMonth"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/worker/getSalaryExcel": {
+      "get": {
+        "summary": "管理：查询合作分红表格文件",
+        "deprecated": false,
+        "description": "直接获取getSalaryOverview中的xlsx的表格版文件",
+        "tags": [
+          "Worker"
+        ],
+        "parameters": [
+          {
+            "name": "workerIDs",
+            "in": "query",
+            "description": "逗号分割",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "timeYear",
+            "in": "query",
+            "description": "如2026",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "timeMonth",
+            "in": "query",
+            "description": "如2",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "title": "工人内部ID"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "salaryYuan": {
+                            "type": "integer"
+                          },
+                          "workingTime": {
+                            "type": "number"
+                          },
+                          "stoppingTime": {
+                            "type": "number"
+                          },
+                          "totalTime": {
+                            "type": "number"
+                          },
+                          "efficiency": {
+                            "type": "number",
+                            "description": "0.xx"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "workingTime",
+                          "stoppingTime",
+                          "totalTime",
+                          "efficiency"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/worker/list": {
+      "get": {
+        "summary": "管理：查询全部工人基本信息（不分页）",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "Worker"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UserPersist"
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/worker/add": {
+      "post": {
+        "summary": "管理：添加工人",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "Worker"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "title": "姓名"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "title": "手机号"
+                  }
+                },
+                "required": [
+                  "name",
+                  "phone"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/UserPersist"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/worker/delete": {
+      "delete": {
+        "summary": "管理：删除工人",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "Worker"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workerID": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "workerID"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "Msg": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "Msg"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/worker/update": {
+      "patch": {
+        "summary": "管理：工人信息更新",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "Worker"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workerID": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string",
+                    "title": "姓名"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "title": "手机号"
+                  },
+                  "wxid": {
+                    "type": "string",
+                    "description": "微信登录凭证"
+                  }
+                },
+                "required": [
+                  "workerID"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/internal/updateMachineOnPeriods": {
+      "post": {
+        "summary": "旧系统对接：传输机器开机时段",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "旧系统"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "title": "算法暂不确定，需要双端用同一算法计算动态密钥"
+                  },
+                  "machines": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "machineID": {
+                          "type": "string"
+                        },
+                        "records": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "startTime": {
+                                "type": "integer"
+                              },
+                              "endTime": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "startTime",
+                              "endTime"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "machineID",
+                        "records"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "key",
+                  "machines"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/internal/lastUpdateDataTime": {
+      "get": {
+        "summary": "旧系统对接：主服务器最新数据情况",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "旧系统"
+        ],
+        "parameters": [
+          {
+            "name": "key",
+            "in": "query",
+            "description": "算法暂不确定，需要双端用同一算法计算动态密钥",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/machine/get": {
+      "get": {
+        "summary": "基础信息",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "Machine"
+        ],
+        "parameters": [
+          {
+            "name": "machineIDs",
+            "in": "query",
+            "description": "逗号分隔",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/MachinePersist"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/machine/update": {
+      "patch": {
+        "summary": "管理：更新机器信息",
+        "deprecated": false,
+        "description": "id必传，其他传什么参更新什么，都传就都更新",
+        "tags": [
+          "Machine"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "machineID": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string",
+                    "title": "默认与机器ID相同，若需修改手动修改"
+                  },
+                  "isAvailable": {
+                    "type": "boolean",
+                    "title": "故障状态/是否可用"
+                  },
+                  "unitPriceYuan": {
+                    "type": "number",
+                    "title": "小时工价"
+                  },
+                  "notes": {
+                    "type": "string",
+                    "title": "备注"
+                  },
+                  "workingPeriodID": {
+                    "type": "string",
+                    "title": "正在被哪一个work占用"
+                  },
+                  "orderID": {
+                    "type": "string",
+                    "title": "被分配到了哪一个订单"
+                  }
+                },
+                "required": [
+                  "machineID",
+                  "workingPeriodID",
+                  "orderID"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/MachinePersist"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/machine/delete": {
+      "delete": {
+        "summary": "管理：删除机器",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "Machine"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "machineID": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "machineID"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/machine/add": {
+      "post": {
+        "summary": "添加机器",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "Machine"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "title": "通道编号"
+                  },
+                  "name": {
+                    "type": "string",
+                    "title": "机器名称",
+                    "description": "格式为“机器编号-机器种类”，如果没有“-”就是机器编号"
+                  },
+                  "unitPriceYuan": {
+                    "type": "number",
+                    "title": "小时工价"
+                  },
+                  "notes": {
+                    "type": "string",
+                    "title": "备注"
+                  },
+                  "orderID": {
+                    "type": "string",
+                    "title": "被分配到了哪一个订单"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "unitPriceYuan",
+                  "notes",
+                  "orderID"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "number"
+                    },
+                    "msg": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/machine/list": {
+      "get": {
+        "summary": "列出所有机器",
+        "deprecated": false,
+        "description": "返回含有所有机器信息的列表",
+        "tags": [
+          "Machine"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "title": "通道编号"
+                          },
+                          "name": {
+                            "type": "string",
+                            "title": "机器名称",
+                            "description": "格式为“机器编号-机器种类”，如果没有“-”就是机器编号"
+                          },
+                          "isAvailable": {
+                            "type": "boolean",
+                            "title": "故障状态/是否可用"
+                          },
+                          "unitPriceYuan": {
+                            "type": "number",
+                            "title": "小时工价"
+                          },
+                          "notes": {
+                            "type": "string",
+                            "title": "备注"
+                          },
+                          "workingPeriodID": {
+                            "type": "string",
+                            "title": "正在被哪一个work占用"
+                          },
+                          "orderID": {
+                            "type": "string",
+                            "title": "被分配到了哪一个订单"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "isAvailable",
+                          "unitPriceYuan",
+                          "notes",
+                          "workingPeriodID",
+                          "orderID"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "data",
+                    "msg"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/order/add": {
+      "post": {
+        "summary": "管理：创建订单",
+        "deprecated": false,
+        "description": "发送通知给工人",
+        "tags": [
+          "Order"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "factoryID": {
+                    "type": "string",
+                    "title": "内部订单号"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "肩带、包边、平牙、自定义"
+                  },
+                  "priority": {
+                    "type": "integer",
+                    "description": "1-3大是高"
+                  },
+                  "notes": {
+                    "type": "string"
+                  },
+                  "colorsAndQuantities": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "color": {
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "color",
+                        "quantity"
+                      ]
+                    }
+                  },
+                  "plannedStartTime": {
+                    "type": "integer",
+                    "description": "不可用填0"
+                  },
+                  "plannedEndTime": {
+                    "type": "integer",
+                    "description": "不可用填0"
+                  },
+                  "assignedTo": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "description": "员工内部ID"
+                    },
+                    "title": "分配的工人ID"
+                  },
+                  "assignedMachines": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "title": "分配的机器ID"
+                  }
+                },
+                "required": [
+                  "factoryID",
+                  "name",
+                  "type",
+                  "priority",
+                  "notes",
+                  "colorsAndQuantities",
+                  "plannedStartTime",
+                  "plannedEndTime",
+                  "assignedTo",
+                  "assignedMachines"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/order/update": {
+      "patch": {
+        "summary": "管理*：修改订单",
+        "deprecated": false,
+        "description": "给什么修改什么\n\n订单完成确认的时候发送通知给工人\n订单审批完成的时候发送通知给工人\n添加工人的时候也发通知给新的工人",
+        "tags": [
+          "Order"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "orderID": {
+                    "type": "string"
+                  },
+                  "factoryID": {
+                    "type": "string",
+                    "title": "内部订单号"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "integer",
+                    "description": "0已创建已分配未开始；1已开始未完成；2工人标记完成；3管理者已确认完成"
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "肩带、包边、平牙、自定义"
+                  },
+                  "priority": {
+                    "type": "integer",
+                    "description": "1-3大是高"
+                  },
+                  "notes": {
+                    "type": "string"
+                  },
+                  "colorsAndQuantities": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "color": {
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "color",
+                        "quantity"
+                      ]
+                    }
+                  },
+                  "plannedStartTime": {
+                    "type": "integer",
+                    "description": "不可用填0"
+                  },
+                  "plannedEndTime": {
+                    "type": "integer",
+                    "description": "不可用填0"
+                  },
+                  "assignedTime": {
+                    "type": "integer",
+                    "description": "一定有"
+                  },
+                  "markedFinishedTime": {
+                    "type": "integer",
+                    "description": "不可用填0"
+                  },
+                  "confirmedFinishedTime": {
+                    "type": "integer",
+                    "description": "不可用填0"
+                  },
+                  "assignedTo": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "description": "员工内部ID"
+                    }
+                  },
+                  "workPeriods": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "description": "时间段内部ID"
+                    }
+                  },
+                  "assignedMachines": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "title": "分配的机器ID"
+                  }
+                },
+                "required": [
+                  "orderID",
+                  "factoryID",
+                  "assignedMachines"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/order/delete": {
+      "delete": {
+        "summary": "管理：删除订单",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "Order"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "orderID": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "orderID"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/order/query": {
+      "post": {
+        "summary": "管理*：查询所有订单（分页）",
+        "deprecated": false,
+        "description": "# 记得写上isLatest = true!!!!",
+        "tags": [
+          "Order"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "description": "默认1"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "默认每页50条"
+                  },
+                  "conditions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "rel": {
+                          "type": "string",
+                          "description": "'ge' | 'le' | 'eq' | 'has'"
+                        },
+                        "val": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "rel",
+                        "val"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "conditions"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "number"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "factoryID": {
+                            "type": "string",
+                            "title": "内部订单号"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "integer",
+                            "description": "0已创建已分配未开始；1已开始未完成；2工人标记完成；3管理者已确认完成"
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "肩带、包边、平牙、自定义"
+                          },
+                          "priority": {
+                            "type": "integer",
+                            "description": "1-3大是高"
+                          },
+                          "notes": {
+                            "type": "string"
+                          },
+                          "colorsAndQuantities": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "color": {
+                                  "type": "string"
+                                },
+                                "quantity": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "color",
+                                "quantity"
+                              ]
+                            }
+                          },
+                          "plannedStartTime": {
+                            "type": "integer",
+                            "description": "不可用填0"
+                          },
+                          "plannedEndTime": {
+                            "type": "integer",
+                            "description": "不可用填0"
+                          },
+                          "assignedTime": {
+                            "type": "integer",
+                            "description": "一定有"
+                          },
+                          "markedFinishedTime": {
+                            "type": "integer",
+                            "description": "不可用填0"
+                          },
+                          "confirmedFinishedTime": {
+                            "type": "integer",
+                            "description": "不可用填0"
+                          },
+                          "assignedTo": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "description": "员工内部ID"
+                            },
+                            "title": "分配的工人ID"
+                          },
+                          "workPeriods": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "description": "时间段内部ID"
+                            }
+                          },
+                          "assignedMachines": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "title": "分配的机器ID"
+                          },
+                          "assignedMachineNames": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "assignedMachineNames",
+                          "id",
+                          "factoryID",
+                          "name",
+                          "status",
+                          "type",
+                          "priority",
+                          "notes",
+                          "colorsAndQuantities",
+                          "plannedStartTime",
+                          "plannedEndTime",
+                          "assignedTime",
+                          "markedFinishedTime",
+                          "confirmedFinishedTime",
+                          "assignedTo",
+                          "workPeriods",
+                          "assignedMachines"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/order/getType": {
+      "get": {
+        "summary": "获取订单种类",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "Order"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "number"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "orderTypes": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "orderTypes"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/order/get": {
+      "get": {
+        "summary": "管理*：查询订单基本信息",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "Order"
+        ],
+        "parameters": [
+          {
+            "name": "orderIDs",
+            "in": "query",
+            "description": "逗号分隔，非管理员需要判断被查询的每个订单均有该工人负责部分",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OrderPersist"
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/order/updateType": {
+      "patch": {
+        "summary": "更新订单种类",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "Order"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "orderTypes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "orderTypes"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "number"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "orderTypes": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "orderTypes"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/notification/list": {
+      "get": {
+        "summary": "获取通知内容",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "Notification"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "number"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/NotificationPersist"
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/notification/read": {
+      "post": {
+        "summary": "标记通知为已读",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "Notification"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notificationIDs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "notificationIDs"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/notification/readAll": {
+      "post": {
+        "summary": "标记所有通知为已读",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "Notification"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/version/query": {
+      "post": {
+        "summary": "获取所有变更记录",
+        "deprecated": false,
+        "description": "空值为获取所有",
+        "tags": [
+          "Version"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "description": "目前只有order"
+                  },
+                  "userID": {
+                    "type": "string"
+                  },
+                  "startTime": {
+                    "type": "number"
+                  },
+                  "endTime": {
+                    "type": "number"
+                  }
+                }
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/VersionPersist"
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/cgi-bin/token": {
+      "get": {
+        "summary": "获取token",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "后端测试用"
+        ],
+        "parameters": [
+          {
+            "name": "grant_type",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "client_credential",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "appid",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "wx5d83f74046780baa",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "secret",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/wxaapi/newtmpl/addtemplate": {
+      "post": {
+        "summary": "新建消息模板",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "后端测试用"
+        ],
+        "parameters": [
+          {
+            "name": "access_token",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    }
+  },
+  "webhooks": {},
+  "components": {
+    "schemas": {
+      "OrderPersist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "factoryID": {
+            "type": "string",
+            "title": "内部订单号"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "description": "0已创建已分配未开始；1已开始未完成；2工人标记完成；3管理者已确认完成"
+          },
+          "type": {
+            "type": "string",
+            "description": "肩带、包边、平牙、自定义"
+          },
+          "priority": {
+            "type": "integer",
+            "description": "1-3大是高"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "colorsAndQuantities": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "color": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "color",
+                "quantity"
+              ]
+            }
+          },
+          "plannedStartTime": {
+            "type": "integer",
+            "description": "不可用填0"
+          },
+          "plannedEndTime": {
+            "type": "integer",
+            "description": "不可用填0"
+          },
+          "assignedTime": {
+            "type": "integer",
+            "description": "一定有"
+          },
+          "markedFinishedTime": {
+            "type": "integer",
+            "description": "不可用填0"
+          },
+          "confirmedFinishedTime": {
+            "type": "integer",
+            "description": "不可用填0"
+          },
+          "assignedTo": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "员工内部ID"
+            },
+            "title": "分配的工人ID"
+          },
+          "workPeriods": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "时间段内部ID"
+            }
+          },
+          "assignedMachines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "分配的机器ID"
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "id",
+          "colorsAndQuantities",
+          "assignedTime",
+          "plannedStartTime",
+          "plannedEndTime",
+          "markedFinishedTime",
+          "confirmedFinishedTime",
+          "status",
+          "priority",
+          "assignedTo",
+          "notes",
+          "workPeriods",
+          "factoryID",
+          "assignedMachines"
+        ]
+      },
+      "UserPersist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "工人内部ID"
+          },
+          "type": {
+            "type": "string",
+            "description": "'admin' | 'worker'"
+          },
+          "name": {
+            "type": "string",
+            "title": "姓名"
+          },
+          "phone": {
+            "type": "string",
+            "title": "手机号"
+          },
+          "wxid": {
+            "type": "string",
+            "description": "微信登录凭证"
+          },
+          "isWorking": {
+            "type": "boolean"
+          },
+          "workingPeriod": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "工作时间段ID"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "phone",
+          "type",
+          "workingPeriod",
+          "isWorking"
+        ]
+      },
+      "MachinePersist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "通道编号"
+          },
+          "name": {
+            "type": "string",
+            "title": "机器名称",
+            "description": "格式为“机器编号-机器种类”，如果没有“-”就是机器编号"
+          },
+          "isAvailable": {
+            "type": "boolean",
+            "title": "故障状态/是否可用"
+          },
+          "unitPriceYuan": {
+            "type": "number",
+            "title": "小时工价"
+          },
+          "notes": {
+            "type": "string",
+            "title": "备注"
+          },
+          "workingPeriodID": {
+            "type": "string",
+            "title": "正在被哪一个work占用"
+          },
+          "orderID": {
+            "type": "string",
+            "title": "被分配到了哪一个订单"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "isAvailable",
+          "unitPriceYuan",
+          "notes",
+          "workingPeriodID",
+          "orderID"
+        ]
+      },
+      "WorkPeriodPersist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "内部ID",
+            "description": "system"
+          },
+          "workerID": {
+            "type": "string",
+            "title": "工人ID",
+            "description": "system"
+          },
+          "orderID": {
+            "type": "string",
+            "title": "订单ID",
+            "description": "system"
+          },
+          "machineID": {
+            "type": "string",
+            "title": "机器ID",
+            "description": "system"
+          },
+          "startTime": {
+            "type": "integer",
+            "description": "preview"
+          },
+          "endTime": {
+            "type": "integer",
+            "description": "preview"
+          },
+          "isMachineDataMerged": {
+            "type": "boolean",
+            "description": "preview"
+          },
+          "validTimeSeconds": {
+            "type": "integer",
+            "title": "有效机器时间",
+            "description": "preview"
+          },
+          "machineName": {
+            "type": "string",
+            "description": "preview"
+          },
+          "orderName": {
+            "type": "string",
+            "description": "preview"
+          },
+          "unitPriceYuan": {
+            "type": "number",
+            "description": "preview",
+            "title": "机器价格"
+          },
+          "machineONPeriods": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "startTime": {
+                  "type": "integer"
+                },
+                "endTime": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "startTime",
+                "endTime"
+              ]
+            },
+            "description": "details"
+          }
+        },
+        "required": [
+          "id",
+          "startTime",
+          "isMachineDataMerged",
+          "endTime",
+          "workerID",
+          "orderID",
+          "machineID",
+          "machineONPeriods",
+          "validTimeSeconds",
+          "machineName",
+          "orderName",
+          "unitPriceYuan"
+        ]
+      },
+      "TokenPersist": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "wxid": {
+            "type": "string"
+          },
+          "expiredTime": {
+            "type": "integer"
+          },
+          "userType": {
+            "type": "string",
+            "description": "admin / worker"
+          }
+        },
+        "required": [
+          "token",
+          "wxid",
+          "expiredTime",
+          "userType"
+        ]
+      },
+      "NotificationPersist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "time": {
+            "type": "number"
+          },
+          "typeCode": {
+            "type": "number"
+          },
+          "contentID": {
+            "type": "string"
+          },
+          "userID": {
+            "type": "string"
+          },
+          "extraInfo": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "time",
+          "typeCode",
+          "contentID",
+          "userID",
+          "extraInfo"
+        ]
+      },
+      "VersionPersist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "description": "目前只有order"
+          },
+          "contentID": {
+            "type": "string",
+            "description": "修改的内容的ID"
+          },
+          "userID": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string",
+            "description": "从什么版本"
+          },
+          "to": {
+            "type": "string",
+            "description": "到什么版本"
+          },
+          "time": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "userID",
+          "from",
+          "to",
+          "contentID",
+          "time"
+        ]
+      }
+    },
+    "responses": {},
+    "securitySchemes": {
+      "Bearer Token": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "servers": [],
+  "security": [
+    {
+      "bearer": []
+    }
+  ]
+}
