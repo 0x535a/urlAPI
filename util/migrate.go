@@ -8,7 +8,60 @@ import (
 	"urlAPI/file"
 )
 
-const AppSettingsVersion = 1
+const AppSettingsVersion = 2
+
+const GenerationContextPromptKey = "generation_context"
+
+const SummaryContextPromptKey = "summary_context"
+
+type V2ProviderRow struct {
+	Name         string
+	APIKeyEnc    string
+	TextModel    string
+	SummaryModel string
+	ImageModel   string
+	ImageSize    string
+	Endpoint     string
+	Enabled      bool
+}
+
+type V2ServiceConfigRow struct {
+	Service          string
+	CacheMinutes     int
+	FallbackImageURL string
+	Settings         map[string]string
+}
+
+type V2PromptRow struct {
+	Key      string
+	Template string
+}
+
+type V2ConfigListItemRow struct {
+	Scope     string
+	Value     string
+	SortOrder int
+}
+
+type V2AppSettingRow struct {
+	Key   string
+	Value string
+}
+
+type V2SettingsRows struct {
+	Providers       []V2ProviderRow
+	ServiceConfigs  []V2ServiceConfigRow
+	Prompts         []V2PromptRow
+	ConfigListItems []V2ConfigListItemRow
+	AppSettings     []V2AppSettingRow
+}
+
+type NameValueRow struct {
+	Name  string
+	Value string
+}
+
+const SettingsTableName = "settings"
 
 type ProviderSettings struct {
 	OpenAI   ProviderConfig `json:"openai"`
@@ -194,6 +247,247 @@ func MigrateLegacySettings(legacy map[string][]string) AppSettings {
 		ExceptInfos:   legacyList(legacy, "taskexceptinfo"),
 	}
 	return NormalizeSettings(settings)
+}
+
+func LegacySettingsMap(rows []NameValueRow) map[string][]string {
+	legacy := make(map[string][]string, len(rows))
+	for _, row := range rows {
+		var values []string
+		if err := json.Unmarshal([]byte(row.Value), &values); err != nil {
+			continue
+		}
+		legacy[row.Name] = values
+	}
+	return legacy
+}
+
+func BuildV2SettingsRows(settings AppSettings) V2SettingsRows {
+	settings = NormalizeSettings(settings)
+	return V2SettingsRows{
+		Providers: []V2ProviderRow{
+			providerRow("openai", settings.Providers.OpenAI),
+			providerRow("deepseek", settings.Providers.DeepSeek),
+			providerRow("alibaba", settings.Providers.Alibaba),
+			providerRow("otherapi", settings.Providers.OtherAPI),
+		},
+		ServiceConfigs: []V2ServiceConfigRow{
+			{
+				Service:          "text",
+				CacheMinutes:     settings.Text.CacheMinutes,
+				FallbackImageURL: settings.Text.FallbackImageURL,
+				Settings: map[string]string{
+					"generation_api": settings.Text.GenerationAPI,
+					"summary_api":    settings.Text.SummaryAPI,
+				},
+			},
+			{
+				Service:          "image",
+				CacheMinutes:     settings.Image.CacheMinutes,
+				FallbackImageURL: settings.Image.FallbackImageURL,
+				Settings: map[string]string{
+					"api": settings.Image.API,
+				},
+			},
+			{
+				Service:          "web",
+				CacheMinutes:     settings.Web.CacheMinutes,
+				FallbackImageURL: settings.Web.FallbackImageURL,
+				Settings: map[string]string{
+					"summary_api":   settings.Web.SummaryAPI,
+					"repo_token":    settings.Web.RepoToken,
+					"youtube_token": settings.Web.YouTubeToken,
+				},
+			},
+			{
+				Service:          "random",
+				FallbackImageURL: settings.Random.FallbackImageURL,
+				Settings: map[string]string{
+					"source_rewrite_from": settings.Random.SourceRewriteFrom,
+					"default_api":         settings.Random.DefaultAPI,
+				},
+			},
+		},
+		Prompts:         buildV2PromptRows(settings.Prompts),
+		ConfigListItems: buildV2ConfigListItemRows(settings),
+		AppSettings: []V2AppSettingRow{
+			{Key: "version", Value: strconv.Itoa(settings.Version)},
+			{Key: "features.text_enabled", Value: boolString(settings.Features.TextEnabled)},
+			{Key: "features.image_enabled", Value: boolString(settings.Features.ImageEnabled)},
+			{Key: "features.web_img_enabled", Value: boolString(settings.Features.WebImgEnabled)},
+			{Key: "features.random_enabled", Value: boolString(settings.Features.RandomEnabled)},
+			{Key: "security.dashboard_password_hash", Value: settings.Security.DashboardPasswordHash},
+		},
+	}
+}
+
+func providerRow(name string, provider ProviderConfig) V2ProviderRow {
+	return V2ProviderRow{
+		Name:         name,
+		APIKeyEnc:    provider.APIKey,
+		TextModel:    provider.TextModel,
+		SummaryModel: provider.SummaryModel,
+		ImageModel:   provider.ImageModel,
+		ImageSize:    provider.ImageSize,
+		Endpoint:     provider.Endpoint,
+		Enabled:      true,
+	}
+}
+
+func buildV2PromptRows(prompts PromptSettings) []V2PromptRow {
+	rows := []V2PromptRow{
+		{Key: GenerationContextPromptKey, Template: prompts.GenerationContext},
+		{Key: SummaryContextPromptKey, Template: prompts.SummaryContext},
+	}
+	for key, template := range prompts.Templates {
+		rows = append(rows, V2PromptRow{Key: key, Template: template})
+	}
+	return rows
+}
+
+func buildV2ConfigListItemRows(settings AppSettings) []V2ConfigListItemRow {
+	rows := []V2ConfigListItemRow{}
+	appendListItems := func(scope string, values []string) {
+		for index, value := range values {
+			rows = append(rows, V2ConfigListItemRow{Scope: scope, Value: value, SortOrder: index})
+		}
+	}
+	appendListItems("text.enabled_prompt_keys", settings.Text.EnabledPromptKeys)
+	appendListItems("text.accepted_prompt_glob", settings.Text.AcceptedPromptGlob)
+	appendListItems("image.accepted_prompt_glob", settings.Image.AcceptedPromptGlob)
+	appendListItems("web.allowed_hosts", settings.Web.AllowedHosts)
+	appendListItems("security.dashboard_allowed_ips", settings.Security.DashboardAllowedIPs)
+	appendListItems("security.allowed_referers", settings.Security.AllowedReferers)
+	appendListItems("task.except_domains", settings.Task.ExceptDomains)
+	appendListItems("task.except_infos", settings.Task.ExceptInfos)
+	return rows
+}
+
+func AppSettingsFromV2Rows(defaults AppSettings, rows V2SettingsRows) AppSettings {
+	settings := defaults
+	for _, provider := range rows.Providers {
+		config := ProviderConfig{
+			APIKey:       provider.APIKeyEnc,
+			TextModel:    provider.TextModel,
+			SummaryModel: provider.SummaryModel,
+			ImageModel:   provider.ImageModel,
+			ImageSize:    provider.ImageSize,
+			Endpoint:     provider.Endpoint,
+		}
+		switch provider.Name {
+		case "openai":
+			settings.Providers.OpenAI = config
+		case "deepseek":
+			settings.Providers.DeepSeek = config
+		case "alibaba":
+			settings.Providers.Alibaba = config
+		case "otherapi":
+			settings.Providers.OtherAPI = config
+		}
+	}
+	for _, service := range rows.ServiceConfigs {
+		switch service.Service {
+		case "text":
+			settings.Text.CacheMinutes = service.CacheMinutes
+			settings.Text.FallbackImageURL = service.FallbackImageURL
+			settings.Text.GenerationAPI = service.Settings["generation_api"]
+			settings.Text.SummaryAPI = service.Settings["summary_api"]
+		case "image":
+			settings.Image.CacheMinutes = service.CacheMinutes
+			settings.Image.FallbackImageURL = service.FallbackImageURL
+			settings.Image.API = service.Settings["api"]
+		case "web":
+			settings.Web.CacheMinutes = service.CacheMinutes
+			settings.Web.FallbackImageURL = service.FallbackImageURL
+			settings.Web.SummaryAPI = service.Settings["summary_api"]
+			settings.Web.RepoToken = service.Settings["repo_token"]
+			settings.Web.YouTubeToken = service.Settings["youtube_token"]
+		case "random":
+			settings.Random.FallbackImageURL = service.FallbackImageURL
+			settings.Random.SourceRewriteFrom = service.Settings["source_rewrite_from"]
+			settings.Random.DefaultAPI = service.Settings["default_api"]
+		}
+	}
+	settings.Prompts.Templates = make(map[string]string)
+	for _, prompt := range rows.Prompts {
+		switch prompt.Key {
+		case GenerationContextPromptKey:
+			settings.Prompts.GenerationContext = prompt.Template
+		case SummaryContextPromptKey:
+			settings.Prompts.SummaryContext = prompt.Template
+		default:
+			settings.Prompts.Templates[prompt.Key] = prompt.Template
+		}
+	}
+	listItems := make(map[string][]string)
+	for _, item := range rows.ConfigListItems {
+		listItems[item.Scope] = append(listItems[item.Scope], item.Value)
+	}
+	settings.Text.EnabledPromptKeys = listItems["text.enabled_prompt_keys"]
+	settings.Text.AcceptedPromptGlob = listItems["text.accepted_prompt_glob"]
+	settings.Image.AcceptedPromptGlob = listItems["image.accepted_prompt_glob"]
+	settings.Web.AllowedHosts = listItems["web.allowed_hosts"]
+	settings.Security.DashboardAllowedIPs = listItems["security.dashboard_allowed_ips"]
+	settings.Security.AllowedReferers = listItems["security.allowed_referers"]
+	settings.Task.ExceptDomains = listItems["task.except_domains"]
+	settings.Task.ExceptInfos = listItems["task.except_infos"]
+	for _, value := range rows.AppSettings {
+		switch value.Key {
+		case "version":
+			settings.Version = parseInt(value.Value, settings.Version)
+		case "features.text_enabled":
+			settings.Features.TextEnabled = parseBool(value.Value, settings.Features.TextEnabled)
+		case "features.image_enabled":
+			settings.Features.ImageEnabled = parseBool(value.Value, settings.Features.ImageEnabled)
+		case "features.web_img_enabled":
+			settings.Features.WebImgEnabled = parseBool(value.Value, settings.Features.WebImgEnabled)
+		case "features.random_enabled":
+			settings.Features.RandomEnabled = parseBool(value.Value, settings.Features.RandomEnabled)
+		case "security.dashboard_password_hash":
+			settings.Security.DashboardPasswordHash = value.Value
+		}
+	}
+	return NormalizeSettings(settings)
+}
+
+func ReadLegacySettings(rows []NameValueRow) map[string][]string {
+	return LegacySettingsMap(rows)
+}
+
+func BuildAppSettingsFromRows(v2Rows V2SettingsRows, readRows func(table string) []NameValueRow) AppSettings {
+	if HasV2Settings(v2Rows) {
+		return AppSettingsFromV2Rows(DefaultAppSettings(), v2Rows)
+	}
+	return MigrateLegacySettings(ReadLegacySettings(readRows(SettingsTableName)))
+}
+
+func HasV2Settings(rows V2SettingsRows) bool {
+	return len(rows.Providers) > 0 || len(rows.ServiceConfigs) > 0
+}
+
+func boolString(value bool) string {
+	if value {
+		return "true"
+	}
+	return "false"
+}
+
+func parseBool(value string, fallback bool) bool {
+	switch value {
+	case "true", "1":
+		return true
+	case "false", "0":
+		return false
+	default:
+		return fallback
+	}
+}
+
+func parseInt(value string, fallback int) int {
+	parsed, err := strconv.Atoi(value)
+	if err != nil {
+		return fallback
+	}
+	return parsed
 }
 
 func DefaultAppSettings() AppSettings {

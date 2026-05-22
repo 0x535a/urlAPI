@@ -17,20 +17,19 @@ func init() {
 	figlet.Print()
 	connect()
 	migration()
-	initSettingMap()
 	initRepoMap()
 	initSessionMap()
-	if err := settingInit(); err != nil {
-		log.Fatal(errors.Wrap(err, "settingInit"))
-	}
 	if err := initAppSettings(); err != nil {
 		log.Fatal(errors.Wrap(err, "initAppSettings"))
 	}
 }
 
 func migration() {
-	db.AutoMigrate(&Setting{})
 	db.AutoMigrate(&AppSetting{})
+	db.AutoMigrate(&Provider{})
+	db.AutoMigrate(&ServiceConfig{})
+	db.AutoMigrate(&Prompt{})
+	db.AutoMigrate(&ConfigListItem{})
 	db.AutoMigrate(&Task{})
 	db.AutoMigrate(&Session{})
 	db.AutoMigrate(&Repo{})
@@ -53,21 +52,6 @@ func Disconnect() {
 	sqlDB, _ := db.DB()
 	defer sqlDB.Close()
 	log.Println("Disconnected from database")
-}
-
-func initSettingMap() {
-	var settings []Setting
-	if err := db.Find(&settings).Error; err != nil {
-		log.Fatal(errors.Wrap(err, "db"))
-	}
-	for _, setting := range settings {
-		var settingList []string
-		if err := json.Unmarshal([]byte(setting.Value), &settingList); err != nil {
-			log.Fatal(errors.Wrap(err, "json"))
-		}
-		SettingMap[setting.Name] = settingList
-	}
-	log.Println("Initialized SettingMap")
 }
 
 func initRepoMap() {

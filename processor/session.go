@@ -27,10 +27,6 @@ func (info *Session) Process(data *database.Session) error {
 		err = fetchRepo(info, data)
 	case "fetchTask":
 		err = fetchTask(info, data)
-	case "fetchSetting":
-		err = fetchSetting(info, data)
-	case "editSetting":
-		err = editSetting(info, data)
 	case "fetchSettings":
 		err = fetchSettings(info, data)
 	case "editSettings":

@@ -1,7 +1,6 @@
 package command
 
 import (
-	"encoding/json"
 	"log"
 	"urlAPI/database"
 )
@@ -32,28 +31,18 @@ func Arg(args []string) {
 }
 
 func repwd() {
-	dbSettingList := append([]string(nil), database.SettingMap["dash"]...)
-	if len(dbSettingList) == 0 {
-		dbSettingList = []string{""}
-	}
-	dbSettingList[0] = "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
-	jsonList, _ := json.Marshal(dbSettingList)
-	dbWriter := database.Setting{
-		Name:  "dash",
-		Value: string(jsonList),
-	}
-	if err := dbWriter.Update(); err != nil {
+	settings := database.SettingsStore.Get()
+	settings.Security.DashboardPasswordHash = "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
+	if err := database.SaveAppSettings(settings); err != nil {
 		log.Fatal(err)
 	}
 	database.ClearSession()
 }
 
 func clearIPRestrict() {
-	dbWriter := database.Setting{
-		Name:  "dashallowedip",
-		Value: `["*"]`,
-	}
-	if err := dbWriter.Update(); err != nil {
+	settings := database.SettingsStore.Get()
+	settings.Security.DashboardAllowedIPs = []string{"*"}
+	if err := database.SaveAppSettings(settings); err != nil {
 		log.Fatal(err)
 	}
 }

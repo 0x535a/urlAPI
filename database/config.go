@@ -6,10 +6,9 @@ import (
 )
 
 var (
-	dbPath     = "assets/database.db"
-	db         *gorm.DB
-	SettingMap = make(map[string][]string)
-	PromptMap  = map[string]int{
+	dbPath    = "assets/database.db"
+	db        *gorm.DB
+	PromptMap = map[string]int{
 		"laugh":    0,
 		"poem":     1,
 		"sentence": 2,
@@ -55,28 +54,54 @@ type Task struct {
 	Size string `json:"size"`
 }
 
-type Setting struct {
-	Name  string `json:"name" gorm:"primaryKey"`
-	Value string `json:"value"`
-}
-
 type AppSetting struct {
-	Key       string    `json:"key" gorm:"primaryKey"`
-	Version   int       `json:"version"`
-	Value     string    `json:"value" gorm:"type:text"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Key   string `json:"key" gorm:"primaryKey"`
+	Value string `json:"value"`
+	// Keep timestamps for existing databases created by the previous design.
+	CreatedAt time.Time `json:"created_at" gorm:"-"`
+	UpdatedAt time.Time `json:"updated_at" gorm:"-"`
+	Version   int       `json:"version" gorm:"-"`
 }
 
-type SettingInit struct {
-	Names []string   `json:"names"`
-	Edits [][]string `json:"edits"`
+type Provider struct {
+	ID           uint      `json:"id" gorm:"primaryKey"`
+	Name         string    `json:"name" gorm:"unique;not null"`
+	APIKeyEnc    string    `json:"api_key_enc"`
+	TextModel    string    `json:"text_model"`
+	SummaryModel string    `json:"summary_model"`
+	ImageModel   *string   `json:"image_model"`
+	ImageSize    *string   `json:"image_size"`
+	Endpoint     string    `json:"endpoint"`
+	Enabled      bool      `json:"enabled" gorm:"default:1"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+type ServiceConfig struct {
+	Service          string `json:"service" gorm:"primaryKey"`
+	CacheMinutes     int    `json:"cache_minutes"`
+	FallbackImageURL string `json:"fallback_image_url"`
+	Settings         string `json:"settings" gorm:"type:json"`
+}
+
+type Prompt struct {
+	Key      string `json:"key" gorm:"primaryKey"`
+	Template string `json:"template" gorm:"not null"`
+}
+
+func (Prompt) TableName() string {
+	return "prompts"
+}
+
+type ConfigListItem struct {
+	ID        uint   `json:"id" gorm:"primaryKey"`
+	Scope     string `json:"scope" gorm:"not null;uniqueIndex:idx_config_list_scope_value"`
+	Value     string `json:"value" gorm:"not null;uniqueIndex:idx_config_list_scope_value"`
+	SortOrder int    `json:"sort_order" gorm:"default:0"`
 }
 
 type DBList struct {
 	RepoList       []Repo
 	TaskList       []Task
 	SessionList    []Session
-	SettingList    []Setting
 	AppSettingList []AppSetting
 }
