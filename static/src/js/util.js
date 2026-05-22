@@ -72,13 +72,32 @@ export async function Repo(operation, repoUUID = "", repoAPI = "", repoInfo = ""
     }
 }
 
+const settingPartMap = {
+    openai: "provider.openai",
+    deepseek: "provider.deepseek",
+    alibaba: "provider.alibaba",
+    otherapi: "provider.otherapi",
+    txt: "feature.text",
+    img: "feature.image",
+    web: "feature.web",
+    rand: "feature.random",
+    security: "security.dashboard",
+    contxt: "prompt",
+    taskBehavior: "security.task_behavior",
+    txtSecurity: "security.text_prompt",
+    imgSecurity: "security.image_prompt",
+}
+
 export async function Setting(operation, settingPart = "", settingEdit = null) {
+    const usesNewSettingsAPI = operation === "fetchSettings" || operation === "editSettings"
+    const actualPart = usesNewSettingsAPI ? (settingPartMap[settingPart] || settingPart) : settingPart
     const session = await Post({
         "Token": Cookies.get("token"),
         "Send": {
             "operation": operation,
-            "setting_part": settingPart,
-            "setting_edit": settingEdit,
+            "setting_part": actualPart,
+            "setting_edit": usesNewSettingsAPI ? null : settingEdit,
+            "setting_body": usesNewSettingsAPI ? settingEdit : null,
         }
     })
     if (session.error) {
@@ -87,10 +106,13 @@ export async function Setting(operation, settingPart = "", settingEdit = null) {
     } else {
         switch (operation) {
             case "editSetting":
+            case "editSettings":
                 Notification("Saved");
                 break;
             case "fetchSetting":
                 return session.setting_data;
+            case "fetchSettings":
+                return session.setting_body;
         }
     }
 }

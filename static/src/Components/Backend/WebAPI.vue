@@ -5,11 +5,11 @@ import {Setting} from "@/js/util.js";
 const settings = ref()
 
 async function getSetting() {
-  settings.value = await Setting("fetchSetting", "web")
+  settings.value = await Setting("fetchSettings", "web")
 }
 
 async function sendSetting() {
-  await Setting("editSetting", "web", settings.value)
+  await Setting("editSettings", "web", settings.value)
 }
 </script>
 
@@ -24,12 +24,12 @@ async function sendSetting() {
         <mdui-card variant="outlined">
           <p>Github App Token（选填）</p>
           <mdui-text-field variant="outlined" label="App Token" type="password" toggle-password
-                           :value="settings?settings[0][5]:''"
-                           @change="settings[0][5] = $event.target.value"></mdui-text-field>
+                            :value="settings?.repo_token || ''"
+                            @change="settings.repo_token = $event.target.value"></mdui-text-field>
           <p>YouTube API Token（必填）</p>
           <mdui-text-field variant="outlined" label="API Token" type="password" toggle-password
-                           :value="settings?settings[0][6]:''"
-                           @change="settings[0][6] = $event.target.value"></mdui-text-field>
+                            :value="settings?.youtube_token || ''"
+                            @change="settings.youtube_token = $event.target.value"></mdui-text-field>
           <mdui-divider></mdui-divider>
           <mdui-button @click="sendSetting()">确认</mdui-button>
         </mdui-card>

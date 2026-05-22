@@ -6,11 +6,11 @@ import {Setting} from "@/js/util.js";
 const settings = ref()
 
 async function getSetting() {
-  settings.value = await Setting("fetchSetting", "otherapi")
+  settings.value = await Setting("fetchSettings", "otherapi")
 }
 
 async function sendSetting() {
-  await Setting("editSetting", "otherapi", settings.value)
+  await Setting("editSettings", "otherapi", settings.value)
 }
 
 </script>
@@ -26,17 +26,17 @@ async function sendSetting() {
         <mdui-card variant="outlined">
           <p>这里设置其他兼容的后端API key，可用于文字生成，总结等，为OpenAI的格式</p>
           <mdui-text-field variant="outlined" label="API Key" type="password" toggle-password
-                           :value="settings?settings[0][0]:''"
-                           @change="settings[0][0] = $event.target.value"></mdui-text-field>
+                            :value="settings?.api_key || ''"
+                            @change="settings.api_key = $event.target.value"></mdui-text-field>
           <mdui-text-field variant="outlined" label="API地址"
-                           :value="settings?settings[0][3]:''"
-                           @change="settings[0][3] = $event.target.value"></mdui-text-field>
+                            :value="settings?.endpoint || ''"
+                            @change="settings.endpoint = $event.target.value"></mdui-text-field>
           <mdui-text-field variant="outlined" label="文字生成模型"
-                           :value="settings?settings[0][2]:''"
-                           @change="settings[0][2] = $event.target.value"></mdui-text-field>
+                            :value="settings?.text_model || ''"
+                            @change="settings.text_model = $event.target.value"></mdui-text-field>
           <mdui-text-field variant="outlined" label="文字总结模型"
-                           :value="settings?settings[0][1]:''"
-                           @change="settings[0][1] = $event.target.value"></mdui-text-field>
+                            :value="settings?.summary_model || ''"
+                            @change="settings.summary_model = $event.target.value"></mdui-text-field>
           <mdui-button @click="sendSetting()">确认</mdui-button>
         </mdui-card>
       </mdui-list-item>

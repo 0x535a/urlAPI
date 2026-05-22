@@ -5,11 +5,11 @@
   const settings = ref()
 
   async function getSetting() {
-    settings.value = await Setting("fetchSetting", "alibaba")
+    settings.value = await Setting("fetchSettings", "alibaba")
   }
 
   async function sendSetting() {
-    await Setting("editSetting", "alibaba", settings.value)
+    await Setting("editSettings", "alibaba", settings.value)
   }
 </script>
 
@@ -24,14 +24,14 @@
         <mdui-card variant="outlined">
           <p>这里设置阿里巴巴的后端API，可用于文字生成，总结等</p>
           <mdui-text-field variant="outlined" label="API Key" type="password" toggle-password
-                           :value="settings?settings[0][0]:''"
-                           @change="settings[0][0] = $event.target.value"></mdui-text-field>
+                            :value="settings?.api_key || ''"
+                            @change="settings.api_key = $event.target.value"></mdui-text-field>
           <mdui-text-field variant="outlined" label="API地址"
-                           :value="settings?settings[0][5]:'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions'"
-                           @change="settings[0][5] = $event.target.value"></mdui-text-field>
+                            :value="settings?.endpoint || 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions'"
+                            @change="settings.endpoint = $event.target.value"></mdui-text-field>
           <p>默认文字生成模型</p>
-          <mdui-radio-group :value="settings?settings[0][1]:'qwen-plus'"
-                            @change="settings[0][1]=$event.target.value"
+          <mdui-radio-group :value="settings?.text_model || 'qwen-plus'"
+                            @change="settings.text_model=$event.target.value"
                             style="margin-top: 0">
             <mdui-radio value="qwen-max">通义千问-Max</mdui-radio>
             <mdui-radio value="qwen-plus">通义千问-Plus</mdui-radio>
@@ -41,8 +41,8 @@
             <mdui-radio value="deepseek-r1">DeepSeek R1</mdui-radio>
           </mdui-radio-group>
           <p>默认总结模型</p>
-          <mdui-radio-group :value="settings?settings[0][2]:'qwen-plus'"
-                            @change="settings[0][2]=$event.target.value"
+          <mdui-radio-group :value="settings?.summary_model || 'qwen-plus'"
+                            @change="settings.summary_model=$event.target.value"
                             style="margin-top: 0">
             <mdui-radio value="qwen-max">通义千问 Max</mdui-radio>
             <mdui-radio value="qwen-plus">通义千问 Plus</mdui-radio>
@@ -52,8 +52,8 @@
             <mdui-radio value="deepseek-r1">DeepSeek R1</mdui-radio>
           </mdui-radio-group>
           <p>默认图片生成模型</p>
-          <mdui-radio-group :value="settings?settings[0][3]:'wanx2.1-t2i-turbo'"
-                            @change="settings[0][3]=$event.target.value"
+          <mdui-radio-group :value="settings?.image_model || 'wanx2.1-t2i-turbo'"
+                            @change="settings.image_model=$event.target.value"
                             style="margin-top: 0">
             <mdui-radio value="wanx2.1-t2i-plus">通义万相文生图 2.1 Plus</mdui-radio>
             <mdui-radio value="wanx2.1-t2i-turbo">通义万相文生图 2.1 Turbo</mdui-radio>
@@ -61,18 +61,18 @@
             <mdui-radio value="wanx-v1">通义万相文生图 1.0</mdui-radio>
           </mdui-radio-group>
           <p>默认图片生成大小</p>
-          <mdui-radio-group :value="settings?settings[0][4]:'1024*1024'"
-                            @change="settings[0][4]=$event.target.value"
-                            v-if="settings?settings[0][3]==='wanx-v1':false"
+          <mdui-radio-group :value="settings?.image_size || '1024*1024'"
+                            @change="settings.image_size=$event.target.value"
+                            v-if="settings?settings.image_model==='wanx-v1':false"
                             style="margin-top: 0">
             <mdui-radio value="1024*1024">正方形 (1024x1024)</mdui-radio>
             <mdui-radio value="1280*720">横屏 (1280x720)</mdui-radio>
             <mdui-radio value="720*1280">竖屏 (720x1280)</mdui-radio>
             <mdui-radio value="768*1152">竖屏 (768x1152)</mdui-radio>
           </mdui-radio-group>
-          <mdui-radio-group :value="settings?settings[0][4]:'1024*1024'"
-                            @change="settings[0][4]=$event.target.value"
-                            v-if="settings?settings[0][3]!=='wanx-v1':false"
+          <mdui-radio-group :value="settings?.image_size || '1024*1024'"
+                            @change="settings.image_size=$event.target.value"
+                            v-if="settings?settings.image_model!=='wanx-v1':false"
                             style="margin-top: 0">
             <mdui-radio value="1024*1024">大 (1024x1024)</mdui-radio>
             <mdui-radio value="512*512">中 (512x512)</mdui-radio>

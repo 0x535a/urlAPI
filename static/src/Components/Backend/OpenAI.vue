@@ -6,11 +6,11 @@ import {Setting} from "@/js/util.js";
 const settings = ref()
 
 async function getSetting() {
-  settings.value = await Setting("fetchSetting", "openai")
+  settings.value = await Setting("fetchSettings", "openai")
 }
 
 async function sendSetting() {
-  await Setting("editSetting", "openai", settings.value)
+  await Setting("editSettings", "openai", settings.value)
 }
 
 </script>
@@ -26,40 +26,40 @@ async function sendSetting() {
         <mdui-card variant="outlined">
           <p>这里设置OpenAI的后端API属性，可用于文字生成，总结等</p>
           <mdui-text-field variant="outlined" label="API Key" type="password" toggle-password
-                           :value="settings?settings[0][0]:''"
-                           @change="settings[0][0] = $event.target.value"></mdui-text-field>
+                            :value="settings?.api_key || ''"
+                            @change="settings.api_key = $event.target.value"></mdui-text-field>
           <mdui-text-field variant="outlined" label="API地址"
-                           :value="settings?settings[0][5]:'https://api.openai.com/v1/chat/completions'"
-                           @change="settings[0][5] = $event.target.value"></mdui-text-field>
+                            :value="settings?.endpoint || 'https://api.openai.com/v1/chat/completions'"
+                            @change="settings.endpoint = $event.target.value"></mdui-text-field>
           <p>默认文字生成模型</p>
-          <mdui-radio-group :value="settings?settings[0][1]:'gpt-4o'" style="margin-top: 0"
-                            @change="settings[0][1]=$event.target.value">
+          <mdui-radio-group :value="settings?.text_model || 'gpt-4o'" style="margin-top: 0"
+                            @change="settings.text_model=$event.target.value">
             <mdui-radio value="gpt-4o">GPT-4o</mdui-radio>
             <mdui-radio value="gpt-4o-mini">GPT-4o-mini</mdui-radio>
           </mdui-radio-group>
           <p>默认总结模型</p>
-          <mdui-radio-group :value="settings?settings[0][2]:'gpt-4o'" style="margin-top: 0"
-                            @change="settings[0][2]=$event.target.value">
+          <mdui-radio-group :value="settings?.summary_model || 'gpt-4o'" style="margin-top: 0"
+                            @change="settings.summary_model=$event.target.value">
             <mdui-radio value="gpt-4o">GPT-4o</mdui-radio>
             <mdui-radio value="gpt-4o-mini">GPT-4o-mini</mdui-radio>
           </mdui-radio-group>
           <p>默认图片生成模型</p>
-          <mdui-radio-group :value="settings?settings[0][3]:'dall-e-3'" style="margin-top: 0"
-                            @change="settings[0][3]=$event.target.value">
+          <mdui-radio-group :value="settings?.image_model || 'dall-e-3'" style="margin-top: 0"
+                            @change="settings.image_model=$event.target.value">
             <mdui-radio value="dall-e-3">DALL·E 3</mdui-radio>
             <mdui-radio value="dall-e-2">DALL·E 2</mdui-radio>
           </mdui-radio-group>
           <p>默认图片生成大小</p>
-          <mdui-radio-group :value="settings?settings[0][4]:'1024x1024'" style="margin-top: 0"
-                            v-if="settings?settings[0][3]==='dall-e-3':false"
-                            @change="settings[0][4]=$event.target.value">
+          <mdui-radio-group :value="settings?.image_size || '1024x1024'" style="margin-top: 0"
+                            v-if="settings?settings.image_model==='dall-e-3':false"
+                            @change="settings.image_size=$event.target.value">
             <mdui-radio value="1024x1024">正方形 (1024x1024)</mdui-radio>
             <mdui-radio value="1792x1024">横屏（1792x1024）</mdui-radio>
             <mdui-radio value="1024x1792">竖屏 (1024x1792)</mdui-radio>
           </mdui-radio-group>
-          <mdui-radio-group :value="settings?settings[0][4]:'1024x1024'" style="margin-top: 0"
-                            v-if="settings?settings[0][3]==='dall-e-2':false"
-                            @change="settings[0][4]=$event.target.value">
+          <mdui-radio-group :value="settings?.image_size || '1024x1024'" style="margin-top: 0"
+                            v-if="settings?settings.image_model==='dall-e-2':false"
+                            @change="settings.image_size=$event.target.value">
             <mdui-radio value="256x256">小 (256x256)</mdui-radio>
             <mdui-radio value="512x512">中（512x512）</mdui-radio>
             <mdui-radio value="1024x1024">大 (1024x1024)</mdui-radio>
