@@ -7,8 +7,9 @@ import (
 )
 
 func (info *TxtGen) FunctionChecker(general *General) {
-	txtgenenabled := database.SettingMap["txtgenenabled"]
-	txtacceptprompt := database.SettingMap["txtacceptprompt"]
+	settings := database.SettingsStore.Get()
+	txtgenenabled := settings.Text.EnabledPromptKeys
+	txtacceptprompt := settings.Text.AcceptedPromptGlob
 	var prompt string
 	if _, ok := database.PromptMap[general.Target]; ok {
 		prompt = general.Target
@@ -16,7 +17,7 @@ func (info *TxtGen) FunctionChecker(general *General) {
 		prompt = "other"
 	}
 	switch {
-	case database.SettingMap["txt"][0] != "true":
+	case !settings.Features.TextEnabled:
 		general.Info = "Txt is not enabled"
 		break
 	case !util.ListChecker(&txtgenenabled, &(prompt)):
@@ -31,8 +32,9 @@ func (info *TxtGen) FunctionChecker(general *General) {
 }
 
 func (info *TxtSum) FunctionChecker(general *General) {
+	settings := database.SettingsStore.Get()
 	switch {
-	case database.SettingMap["txt"][0] != "true":
+	case !settings.Features.TextEnabled:
 		general.Info = "Txt is not enabled"
 		break
 	default:
@@ -42,9 +44,10 @@ func (info *TxtSum) FunctionChecker(general *General) {
 }
 
 func (info *ImgGen) FunctionChecker(general *General) {
-	imgacceptprompt := database.SettingMap["imgacceptprompt"]
+	settings := database.SettingsStore.Get()
+	imgacceptprompt := settings.Image.AcceptedPromptGlob
 	switch {
-	case database.SettingMap["img"][0] != "true":
+	case !settings.Features.ImageEnabled:
 		general.Info = "Img is not enabled"
 		break
 	case general.Target == "" || !util.WildcardChecker(&imgacceptprompt, &(general.Target)):
@@ -56,8 +59,9 @@ func (info *ImgGen) FunctionChecker(general *General) {
 }
 
 func (info *Rand) FunctionChecker(general *General) {
+	settings := database.SettingsStore.Get()
 	switch {
-	case database.SettingMap["rand"][0] != "true":
+	case !settings.Features.RandomEnabled:
 		general.Info = "Random is not enabled"
 		break
 	default:
@@ -67,16 +71,17 @@ func (info *Rand) FunctionChecker(general *General) {
 }
 
 func (info *WebImg) FunctionChecker(general *General) {
-	webimgallowed := database.SettingMap["webimgallowed"]
+	settings := database.SettingsStore.Get()
+	webimgallowed := settings.Web.AllowedHosts
 
 	switch {
-	case database.SettingMap["web"][1] != "true":
+	case !settings.Features.WebImgEnabled:
 		general.Info = "WebImg is not enabled"
 		break
 	case !util.ListChecker(&webimgallowed, &(info.API)):
 		general.Info = fmt.Sprintf("API %s is not enabled", info.API)
 		break
-	case info.API == "www.ithome.com" && database.SettingMap["txt"][0] != "true":
+	case info.API == "www.ithome.com" && !settings.Features.TextEnabled:
 		general.Info = "For ITHome, TxtSum is not enabled"
 		break
 	default:

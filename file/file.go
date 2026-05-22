@@ -11,7 +11,7 @@ var Icons embed.FS
 //go:embed logo/*
 var Logos embed.FS
 
-//go:embed setting.json
+//go:embed setting.json settings.json
 var Settings embed.FS
 
 //go:embed empty.png

@@ -8,9 +8,10 @@ import (
 )
 
 func (info *Rand) Process(data *database.Task) error {
-	info.Return = database.SettingMap["rand"][2]
+	settings := database.SettingsStore.Get()
+	info.Return = settings.Random.FallbackImageURL
 	if info.API == "" {
-		info.API = database.SettingMap["rand"][3]
+		info.API = settings.Random.DefaultAPI
 	}
 	var content []string
 	var ok bool

@@ -31,7 +31,8 @@ func getYtbID(URL string) string {
 
 func (info *WebImg) Process(data *database.Task) error {
 	var img []byte
-	info.Return = database.SettingMap["web"][4]
+	settings := database.SettingsStore.Get()
+	info.Return = settings.Web.FallbackImageURL
 	urlParse, err := url.Parse(info.Target)
 	if err != nil {
 		data.Status = "failed"
@@ -44,19 +45,25 @@ func (info *WebImg) Process(data *database.Task) error {
 	case "www.bilibili.com":
 		img, err = util.Bili(getBiliABV(info.Target))
 	case "www.youtube.com":
-		token := database.SettingMap["web"][6]
+		token := settings.Web.YouTubeToken
 		img, err = util.Ytb(getYtbID(info.Target), token)
 	case "arxiv.org":
 		img, err = util.Arxiv(info.Target)
 	case "www.ithome.com":
-		api := database.SettingMap["txt"][1]
-		token := database.SettingMap[api][0]
-		model := database.SettingMap[api][2]
-		context := database.SettingMap["context"][1]
-		endpoint := getEndpoint(api)
+		api := settings.Text.SummaryAPI
+		provider, ok := settings.Providers.ByName(api)
+		if !ok {
+			data.Status = "failed"
+			data.Return = "Invalid API"
+			return errors.WithStack(errors.New("Invalid API"))
+		}
+		token := provider.APIKey
+		model := provider.SummaryModel
+		context := settings.Prompts.SummaryContext
+		endpoint := provider.Endpoint
 		img, err = util.ITHome(info.Target, endpoint, token, model, context)
 	case "github.com", "gitee.com":
-		token := database.SettingMap["web"][5]
+		token := settings.Web.RepoToken
 		img, err = util.Repo(info.Target, token)
 	default:
 		data.Status = "failed"

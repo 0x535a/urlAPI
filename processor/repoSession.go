@@ -18,7 +18,7 @@ func newRepo(info *Session, data *database.Session) error {
 		if err != nil {
 			return errors.WithStack(err)
 		}
-		util.ListReplacer(&content, "https://raw.githubusercontent.com", database.SettingMap["rand"][1])
+		util.ListReplacer(&content, "https://raw.githubusercontent.com", database.SettingsStore.Get().Random.SourceRewriteFrom)
 	case "gitee":
 		content, err = util.GetRepo("https://gitee.com/api/v5/repos/" + info.RepoInfo + "/contents")
 		if err != nil {
@@ -58,7 +58,7 @@ func refreshRepo(info *Session, data *database.Session) error {
 		if err != nil {
 			return errors.WithStack(err)
 		}
-		util.ListReplacer(&content, "https://raw.githubusercontent.com", database.SettingMap["rand"][1])
+		util.ListReplacer(&content, "https://raw.githubusercontent.com", database.SettingsStore.Get().Random.SourceRewriteFrom)
 	case "gitee":
 		content, err = util.GetRepo("https://gitee.com/api/v5/repos/" + info.RepoInfo + "/contents")
 		if err != nil {

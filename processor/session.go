@@ -31,6 +31,10 @@ func (info *Session) Process(data *database.Session) error {
 		err = fetchSetting(info, data)
 	case "editSetting":
 		err = editSetting(info, data)
+	case "fetchSettings":
+		err = fetchSettings(info, data)
+	case "editSettings":
+		err = editSettings(info, data)
 	}
 	if err != nil {
 		return errors.WithStack(err)

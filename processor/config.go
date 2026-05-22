@@ -1,6 +1,7 @@
 package processor
 
 import (
+	"encoding/json"
 	"os"
 	"sync"
 	"urlAPI/database"
@@ -33,18 +34,11 @@ func init() {
 }
 
 func getEndpoint(api string) string {
-	switch api {
-	case "openai":
-		return database.SettingMap["openai"][5]
-	case "alibaba":
-		return database.SettingMap["alibaba"][5]
-	case "otherapi":
-		return database.SettingMap["otherapi"][3]
-	case "deepseek":
-		return database.SettingMap["deepseek"][3]
-	default:
+	provider, ok := database.SettingsStore.Get().Providers.ByName(api)
+	if !ok {
 		return ""
 	}
+	return provider.Endpoint
 }
 
 type Session struct {
@@ -53,6 +47,7 @@ type Session struct {
 	SessionIP    string          `json:"session_ip"`
 	SettingName  []string        `json:"setting_name"`
 	SettingData  [][]string      `json:"setting_data"`
+	SettingBody  json.RawMessage `json:"setting_body,omitempty"`
 	TaskData     []database.Task `json:"task_data"`
 	TaskMaxPage  int             `json:"task_max_page"`
 	RepoData     []database.Repo `json:"repo_data"`

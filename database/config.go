@@ -60,14 +60,23 @@ type Setting struct {
 	Value string `json:"value"`
 }
 
+type AppSetting struct {
+	Key       string    `json:"key" gorm:"primaryKey"`
+	Version   int       `json:"version"`
+	Value     string    `json:"value" gorm:"type:text"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 type SettingInit struct {
 	Names []string   `json:"names"`
 	Edits [][]string `json:"edits"`
 }
 
 type DBList struct {
-	RepoList    []Repo
-	TaskList    []Task
-	SessionList []Session
-	SettingList []Setting
+	RepoList       []Repo
+	TaskList       []Task
+	SessionList    []Session
+	SettingList    []Setting
+	AppSettingList []AppSetting
 }

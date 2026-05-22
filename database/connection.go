@@ -23,10 +23,14 @@ func init() {
 	if err := settingInit(); err != nil {
 		log.Fatal(errors.Wrap(err, "settingInit"))
 	}
+	if err := initAppSettings(); err != nil {
+		log.Fatal(errors.Wrap(err, "initAppSettings"))
+	}
 }
 
 func migration() {
 	db.AutoMigrate(&Setting{})
+	db.AutoMigrate(&AppSetting{})
 	db.AutoMigrate(&Task{})
 	db.AutoMigrate(&Session{})
 	db.AutoMigrate(&Repo{})

@@ -24,6 +24,9 @@ var PartMap = map[string][]string{
 
 func fetchSetting(info *Session, data *database.Session) error {
 	fetchList := PartMap[info.SettingPart]
+	if fetchList == nil {
+		return errors.WithStack(errors.New("Setting part not found"))
+	}
 	info.SettingName = fetchList
 	for _, name := range fetchList {
 		settingGetter := database.Setting{Name: name}
@@ -42,6 +45,12 @@ func fetchSetting(info *Session, data *database.Session) error {
 
 func editSetting(info *Session, data *database.Session) error {
 	editList := PartMap[info.SettingPart]
+	if editList == nil {
+		return errors.WithStack(errors.New("Setting part not found"))
+	}
+	if len(info.SettingEdit) < len(editList) {
+		return errors.WithStack(errors.New("Setting edit length mismatch"))
+	}
 	for index, name := range editList {
 		jsonList, err := json.Marshal(info.SettingEdit[index])
 		if err != nil {

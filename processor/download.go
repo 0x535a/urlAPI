@@ -19,7 +19,7 @@ func (info *Download) Process(data *database.Task) error {
 	if err != nil {
 		data.Status = "failed"
 		data.Return = err.Error()
-		info.ReturnError = database.SettingMap["web"][4]
+		info.ReturnError = database.SettingsStore.Get().Web.FallbackImageURL
 		return errors.WithStack(err)
 	}
 	data.Return = ImgPath + info.Target + ".png"

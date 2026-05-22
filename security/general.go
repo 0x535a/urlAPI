@@ -60,7 +60,7 @@ func (info *General) InfoChecker() {
 		info.Info = "Empty Target"
 		info.Unsafe = true
 	}
-	allowedref := database.SettingMap["allowedref"]
+	allowedref := database.SettingsStore.Get().Security.AllowedReferers
 	domain := util.GetDomain(info.Referer)
 	if !util.WildcardChecker(&allowedref, &domain) || info.Referer == "" {
 		info.Info = fmt.Sprintf("Referer %s not allowed", info.Referer)
@@ -70,8 +70,9 @@ func (info *General) InfoChecker() {
 }
 
 func (info *General) ExceptionChecker() {
-	taskexceptdomain := database.SettingMap["taskexceptdomain"]
-	taskexceptinfo := database.SettingMap["taskexceptinfo"]
+	settings := database.SettingsStore.Get()
+	taskexceptdomain := settings.Task.ExceptDomains
+	taskexceptinfo := settings.Task.ExceptInfos
 	domain := util.GetDomain(info.Referer)
 	auxInfo := info.Info
 	if util.WildcardChecker(&taskexceptdomain, &domain) || util.WildcardChecker(&taskexceptinfo, &auxInfo) {

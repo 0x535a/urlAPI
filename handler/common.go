@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 	"urlAPI/database"
 	"urlAPI/processor"
@@ -69,8 +68,14 @@ func afterTask(r *request.Request) {
 func beforeTask(r *request.Request) {
 	//正式开始
 	settingName := task2settingName[r.Processor.Filter.Type]
-	expiredPosition := expiredSettingPosition[settingName]
-	expiredTime, _ := strconv.Atoi(database.SettingMap[settingName][expiredPosition])
+	settings := database.SettingsStore.Get()
+	expiredTime := settings.Text.CacheMinutes
+	switch settingName {
+	case "img":
+		expiredTime = settings.Image.CacheMinutes
+	case "web":
+		expiredTime = settings.Web.CacheMinutes
+	}
 
 	processor.TaskCounter.Mu.RLock()
 	task, ok := processor.TaskQueue.Queue[r.Processor.Filter]

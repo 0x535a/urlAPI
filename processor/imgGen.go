@@ -11,20 +11,27 @@ import (
 )
 
 func (info *ImgGen) Process(data *database.Task) error {
-	info.Return = database.SettingMap["img"][3]
+	settings := database.SettingsStore.Get()
+	info.Return = settings.Image.FallbackImageURL
 	if info.API == "" {
-		info.API = database.SettingMap["img"][1]
+		info.API = settings.Image.API
 		data.API = info.API
 	}
+	provider, ok := settings.Providers.ByName(info.API)
+	if !ok {
+		data.Status = "failed"
+		data.Return = "Imggen Process invalid API"
+		return errors.WithStack(errors.New("Imggen Process invalid API"))
+	}
 	if info.Model == "" {
-		info.Model = database.SettingMap[info.API][3]
+		info.Model = provider.ImageModel
 		data.Model = info.Model
 	}
 	if info.Size == "" {
-		info.Size = database.SettingMap[info.API][4]
+		info.Size = provider.ImageSize
 		data.Size = info.Size
 	}
-	token := database.SettingMap[info.API][0]
+	token := provider.APIKey
 	var img []byte
 	prompt := info.Target
 	var err error
@@ -33,7 +40,7 @@ func (info *ImgGen) Process(data *database.Task) error {
 		img, prompt, err = util.AlibabaImg(token, info.Target, info.Model, info.Size)
 	case "openai":
 		prompt = info.Target
-		img, err = util.OpenaiImg(database.SettingMap["openai"][5],
+		img, err = util.OpenaiImg(settings.Providers.OpenAI.Endpoint,
 			token, info.Target, info.Model, info.Size)
 	default:
 		data.Status = "failed"

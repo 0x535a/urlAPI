@@ -32,7 +32,10 @@ func Arg(args []string) {
 }
 
 func repwd() {
-	dbSettingList := database.SettingMap["dash"]
+	dbSettingList := append([]string(nil), database.SettingMap["dash"]...)
+	if len(dbSettingList) == 0 {
+		dbSettingList = []string{""}
+	}
 	dbSettingList[0] = "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
 	jsonList, _ := json.Marshal(dbSettingList)
 	dbWriter := database.Setting{

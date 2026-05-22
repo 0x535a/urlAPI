@@ -9,7 +9,7 @@ import (
 
 func login(info *Session, data *database.Session) error {
 	var session database.Session
-	if info.Operation == "login" && database.SettingMap["dash"][0] == data.Token {
+	if info.Operation == "login" && database.SettingsStore.Get().Security.DashboardPasswordHash == data.Token {
 		session.Token = util.GetRandomString()
 		info.SessionToken = session.Token
 		session.Term = info.LoginTerm

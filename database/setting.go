@@ -9,6 +9,8 @@ import (
 )
 
 func settingInit() error {
+	SkipAppSettingsSync = true
+	defer func() { SkipAppSettingsSync = false }()
 	f, _ := file.Settings.Open("setting.json")
 	d, _ := io.ReadAll(f)
 	var settingsInit SettingInit
@@ -53,6 +55,11 @@ func (setting *Setting) Update() error {
 		return errors.WithStack(err)
 	}
 	SettingMap[setting.Name] = tmp
+	if !SkipAppSettingsSync {
+		if err := syncAppSettingsFromLegacy(); err != nil {
+			return errors.WithStack(err)
+		}
+	}
 	return nil
 }
 
