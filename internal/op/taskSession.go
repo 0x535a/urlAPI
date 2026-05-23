@@ -8,7 +8,7 @@ import (
 	"urlAPI/util"
 )
 
-func fetchTask(info *Session, data *model.Session) error {
+func fetchTask(info *Session) error {
 	var taskGetter model.Task
 	v := reflect.ValueOf(&taskGetter).Elem()
 	for i := 0; i < v.NumField(); i++ {
@@ -26,17 +26,33 @@ func fetchTask(info *Session, data *model.Session) error {
 		return errors.WithStack(err)
 	}
 	taskList := taskDBList.TaskList
-	info.TaskMaxPage = (len(taskList) / 100) + 1
+	if len(taskList) == 0 {
+		info.TaskMaxPage = 0
+		info.TaskData = nil
+		return nil
+	}
+	info.TaskMaxPage = ((len(taskList) - 1) / 100) + 1
 	sort.Slice(taskList, func(i, j int) bool {
 		return taskList[i].Time.After(taskList[j].Time)
 	})
 	switch {
 	case info.TaskPage == -1:
 		info.TaskData = taskList
-	case info.TaskPage*100 > len(taskList):
-		info.TaskData = taskList[(info.TaskPage-1)*100:]
-	case info.TaskPage*100 <= len(taskList):
-		info.TaskData = taskList[(info.TaskPage-1)*100 : (info.TaskPage*100 - 1)]
+	default:
+		page := info.TaskPage
+		if page < 1 {
+			page = 1
+		}
+		start := (page - 1) * 100
+		if start >= len(taskList) {
+			info.TaskData = nil
+			return nil
+		}
+		end := start + 100
+		if end > len(taskList) {
+			end = len(taskList)
+		}
+		info.TaskData = taskList[start:end]
 	}
 	return nil
 }

@@ -15,6 +15,17 @@ import (
 const skipDBKey = "security.skipDB"
 const generalKey = "security.general"
 
+type General struct {
+	Referer string    `json:"referer"` //Complete Referer
+	IP      string    `json:"ip"`
+	Type    string    `json:"type"` // 任务类型
+	Target  string    `json:"target"`
+	Time    time.Time `json:"time"`
+	Unsafe  bool      `json:"unsafe"`
+	SkipDB  bool      `json:"skip_db"`
+	Info    string    `json:"info"`
+}
+
 func GeneralSecurityMiddleware(kind string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		general := General{
@@ -71,6 +82,7 @@ func TextSecurityMiddleware() gin.HandlerFunc {
 			textAPIs := []string{"openai", "alibaba", "deepseek", "otherapi"}
 			api := c.Query("api")
 			var prompt string
+			reason := ""
 			if _, ok := database.PromptMap[general.Target]; ok {
 				prompt = general.Target
 			} else {
@@ -78,15 +90,16 @@ func TextSecurityMiddleware() gin.HandlerFunc {
 			}
 			switch {
 			case !settings.Features.TextEnabled:
-				general.Info = "Txt is not enabled"
+				reason = "Txt is not enabled"
 			case !util.ListChecker(&txtgenenabled, &prompt):
-				general.Info = fmt.Sprintf("Target %s is not enabled for Txt Gen", general.Target)
+				reason = fmt.Sprintf("Target %s is not enabled for Txt Gen", general.Target)
 			case (general.Target == "" || !util.WildcardChecker(&txtacceptprompt, &general.Target)) && prompt == "other":
-				general.Info = fmt.Sprintf("Prompt %s is not enabled for Txt Gen", general.Target)
+				reason = fmt.Sprintf("Prompt %s is not enabled for Txt Gen", general.Target)
 			case !util.ListChecker(&textAPIs, &api):
-				general.Info = "Invalid API"
+				reason = "Invalid API"
 			}
-			if general.Info != "" {
+			if reason != "" {
+				general.Info = reason
 				general.Unsafe = true
 			}
 		}
@@ -106,14 +119,16 @@ func ImageSecurityMiddleware() gin.HandlerFunc {
 			imgacceptprompt := settings.Image.AcceptedPromptGlob
 			imgAPIs := []string{"openai", "alibaba"}
 			api := c.Query("api")
+			reason := ""
 			if !settings.Features.ImageEnabled {
-				general.Info = "Img is not enabled"
+				reason = "Img is not enabled"
 			} else if general.Target == "" || !util.WildcardChecker(&imgacceptprompt, &general.Target) {
-				general.Info = fmt.Sprintf("Prompt %s is not allowed for ImgGen", general.Target)
+				reason = fmt.Sprintf("Prompt %s is not allowed for ImgGen", general.Target)
 			} else if !util.ListChecker(&imgAPIs, &api) {
-				general.Info = "Invalid API"
+				reason = "Invalid API"
 			}
-			if general.Info != "" {
+			if reason != "" {
+				general.Info = reason
 				general.Unsafe = true
 			}
 		}
@@ -132,12 +147,14 @@ func RandomSecurityMiddleware() gin.HandlerFunc {
 			settings := database.SettingsStore.Get()
 			randAPIs := []string{"github", "gitee"}
 			api := c.Query("api")
+			reason := ""
 			if !settings.Features.RandomEnabled {
-				general.Info = "Random is not enabled"
+				reason = "Random is not enabled"
 			} else if !util.ListChecker(&randAPIs, &api) {
-				general.Info = "Invalid API"
+				reason = "Invalid API"
 			}
-			if general.Info != "" {
+			if reason != "" {
+				general.Info = reason
 				general.Unsafe = true
 			}
 		}
@@ -157,15 +174,17 @@ func WebSecurityMiddleware() gin.HandlerFunc {
 			settings := database.SettingsStore.Get()
 			webimgallowed := settings.Web.AllowedHosts
 			api := parsedURL.Host
+			reason := ""
 			switch {
 			case !settings.Features.WebImgEnabled:
-				general.Info = "WebImg is not enabled"
+				reason = "WebImg is not enabled"
 			case !util.ListChecker(&webimgallowed, &api):
-				general.Info = fmt.Sprintf("API %s is not enabled", api)
+				reason = fmt.Sprintf("API %s is not enabled", api)
 			case api == "www.ithome.com" && !settings.Features.TextEnabled:
-				general.Info = "For ITHome, TxtSum is not enabled"
+				reason = "For ITHome, TxtSum is not enabled"
 			}
-			if general.Info != "" {
+			if reason != "" {
+				general.Info = reason
 				general.Unsafe = true
 			}
 		}

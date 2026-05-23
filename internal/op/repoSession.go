@@ -10,7 +10,7 @@ import (
 	"urlAPI/util"
 )
 
-func newRepo(info *Session, data *model.Session) error {
+func newRepo(info *Session) error {
 	var err error
 	var content []string
 	switch info.RepoAPI {
@@ -41,7 +41,7 @@ func newRepo(info *Session, data *model.Session) error {
 	return errors.WithStack(db.CreateRepo(&repoDB))
 }
 
-func refreshRepo(info *Session, data *model.Session) error {
+func refreshRepo(info *Session) error {
 	repoFinder := model.Repo{
 		UUID: info.RepoUUID,
 	}
@@ -76,14 +76,14 @@ func refreshRepo(info *Session, data *model.Session) error {
 	return errors.WithStack(db.UpdateRepo(&repoDB))
 }
 
-func delRepo(info *Session, data *model.Session) error {
+func delRepo(info *Session) error {
 	repoDB := model.Repo{
 		UUID: info.RepoUUID,
 	}
 	return errors.WithStack(db.DeleteRepo(&repoDB))
 }
 
-func fetchRepo(info *Session, data *model.Session) error {
+func fetchRepo(info *Session) error {
 	repoFinder := model.Repo{}
 	repoDBList, err := db.ReadRepo(repoFinder)
 	info.RepoData = repoDBList.RepoList

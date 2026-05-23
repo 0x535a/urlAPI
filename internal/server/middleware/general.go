@@ -8,6 +8,16 @@ import (
 	"urlAPI/util"
 )
 
+type FrequencyFilter struct {
+	Type string `json:"type"`
+	IP   string `json:"ip"`
+}
+
+type FrequencyData struct {
+	Counter int       `json:"counter"`
+	Time    time.Time `json:"time"`
+}
+
 type SafeIPFrequency struct {
 	mu          sync.Mutex
 	IPFrequency map[FrequencyFilter]FrequencyData

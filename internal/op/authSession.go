@@ -39,14 +39,14 @@ func login(info *Session, data *model.Session) error {
 	return nil
 }
 
-func logout(info *Session, data *model.Session) error {
+func logout(data *model.Session) error {
 	if err := db.DeleteSession(data); err != nil {
 		return errors.WithStack(err)
 	}
 	return nil
 }
 
-func exit(info *Session, data *model.Session) error {
+func exit(data *model.Session) error {
 	session, _ := database.SessionMap[data.Token]
 	if !session.Term {
 		if err := db.DeleteSession(data); err != nil {

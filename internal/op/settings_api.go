@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"strings"
 	"urlAPI/internal/database"
-	"urlAPI/internal/model"
 	"urlAPI/util"
 
 	"github.com/pkg/errors"
@@ -83,7 +82,7 @@ type imagePromptSecurityDTO struct {
 	AcceptedPromptGlob []string `json:"accepted_prompt_glob"`
 }
 
-func fetchSettings(info *Session, data *model.Session) error {
+func fetchSettings(info *Session) error {
 	body, err := settingsBody(info.SettingPart, database.SettingsStore.Get())
 	if err != nil {
 		return errors.WithStack(err)
@@ -96,7 +95,7 @@ func fetchSettings(info *Session, data *model.Session) error {
 	return nil
 }
 
-func editSettings(info *Session, data *model.Session) error {
+func editSettings(info *Session) error {
 	settings := database.SettingsStore.Get()
 	updated, err := applySettingsBody(info.SettingPart, settings, info.SettingBody)
 	if err != nil {

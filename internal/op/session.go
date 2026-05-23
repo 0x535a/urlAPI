@@ -5,35 +5,36 @@ import (
 	"urlAPI/internal/model"
 )
 
-func (info *Session) Process(data *model.Session) error {
-	var err error
-	if err = login(info, data); err != nil {
-		return errors.WithStack(err)
+func HandleSession(request Session, authSession model.Session) (Session, error) {
+	response := request
+	if err := login(&response, &authSession); err != nil {
+		return response, errors.WithStack(err)
 	}
-	switch info.Operation {
+
+	var err error
+	switch response.Operation {
 	case "login":
-		break
 	case "logout":
-		err = logout(info, data)
+		err = logout(&authSession)
 	case "exit":
-		err = exit(info, data)
+		err = exit(&authSession)
 	case "newRepo":
-		err = newRepo(info, data)
+		err = newRepo(&response)
 	case "refreshRepo":
-		err = refreshRepo(info, data)
+		err = refreshRepo(&response)
 	case "delRepo":
-		err = delRepo(info, data)
+		err = delRepo(&response)
 	case "fetchRepo":
-		err = fetchRepo(info, data)
+		err = fetchRepo(&response)
 	case "fetchTask":
-		err = fetchTask(info, data)
+		err = fetchTask(&response)
 	case "fetchSettings":
-		err = fetchSettings(info, data)
+		err = fetchSettings(&response)
 	case "editSettings":
-		err = editSettings(info, data)
+		err = editSettings(&response)
 	}
 	if err != nil {
-		return errors.WithStack(err)
+		return response, errors.WithStack(err)
 	}
-	return nil
+	return response, nil
 }
