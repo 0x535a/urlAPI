@@ -62,7 +62,10 @@ jobs:
           context: .
           file: ./Dockerfile.d/frontend-amd64
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/urlapi-frontend:${{ env.TAG }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/urlapi-frontend:${{ env.TAG }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/urlapi-frontend:latest
+          provenance: false
 
   build-arm64:
     needs: test
@@ -92,4 +95,7 @@ jobs:
           context: .
           file: ./Dockerfile.d/frontend-arm64
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/urlapi-frontend-arm:${{ env.TAG }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/urlapi-frontend-arm:${{ env.TAG }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/urlapi-frontend-arm:latest
+          provenance: false
