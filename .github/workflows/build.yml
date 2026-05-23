@@ -5,8 +5,35 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.2'
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test ./...
+
+      - name: Build check
+        run: go build ./...
+
   build-linux-windows:
+    needs: test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -28,7 +55,7 @@ jobs:
             ext: ".exe"
           - goos: windows
             goarch: arm64
-            cc: aarch64-w64-mingw32-gcc
+            cc: aarch64-w64-mingw32-clang
             cgo_ldflags: ""
             ext: ".exe"
     steps:
@@ -65,13 +92,35 @@ jobs:
           mkdir -p bin
           go build -o bin/urlAPI_${GOOS}_${GOARCH}${{ matrix.ext }} .
 
+      - name: Inspect binary
+        run: file bin/urlAPI_${{ matrix.goos }}_${{ matrix.goarch }}${{ matrix.ext }}
+
+      - name: Package artifact
+        env:
+          TAG: ${{ github.ref_name }}
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          EXT: ${{ matrix.ext }}
+        run: |
+          mkdir -p packages
+          package="urlAPI_${TAG}_${GOOS}_${GOARCH}"
+          mkdir -p "$package"
+          cp "bin/urlAPI_${GOOS}_${GOARCH}${EXT}" "$package/"
+          cp README.md LICENSE "$package/"
+          if [ "$GOOS" = "windows" ]; then
+            zip -r "packages/${package}.zip" "$package"
+          else
+            tar -czf "packages/${package}.tar.gz" "$package"
+          fi
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: urlAPI-binaries-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: bin/
+          path: packages/*
 
   build-macos:
+    needs: test
     runs-on: macos-14
     strategy:
       matrix:
@@ -105,11 +154,28 @@ jobs:
           mkdir -p bin
           go build -o bin/urlAPI_${GOOS}_${GOARCH}${{ matrix.ext }} .
 
+      - name: Inspect binary
+        run: file bin/urlAPI_${{ matrix.goos }}_${{ matrix.goarch }}${{ matrix.ext }}
+
+      - name: Package artifact
+        env:
+          TAG: ${{ github.ref_name }}
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          EXT: ${{ matrix.ext }}
+        run: |
+          mkdir -p packages
+          package="urlAPI_${TAG}_${GOOS}_${GOARCH}"
+          mkdir -p "$package"
+          cp "bin/urlAPI_${GOOS}_${GOARCH}${EXT}" "$package/"
+          cp README.md LICENSE "$package/"
+          tar -czf "packages/${package}.tar.gz" "$package"
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: urlAPI-binaries-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: bin/
+          path: packages/*
 
   release:
     needs: [build-linux-windows, build-macos]
@@ -124,10 +190,18 @@ jobs:
       - name: Display downloaded files
         run: ls -R dist
 
+      - name: Generate checksums
+        run: |
+          cd dist
+          find . -type f \( -name '*.tar.gz' -o -name '*.zip' \) | sort | xargs sha256sum > checksums.txt
+
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/**/*
+          files: |
+            dist/**/*
+            dist/checksums.txt
+          generate_release_notes: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}

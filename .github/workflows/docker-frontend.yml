@@ -5,8 +5,37 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: read
+
+concurrency:
+  group: docker-frontend-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: static/package-lock.json
+
+      - name: Install dependencies
+        working-directory: static
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: static
+        run: npm run build
+
   build-x86:
+    needs: test
     runs-on: ubuntu-latest
     environment: DOCKERHUB
 
@@ -36,6 +65,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/urlapi-frontend:${{ env.TAG }}
 
   build-arm64:
+    needs: test
     runs-on: ubuntu-24.04-arm
     environment: DOCKERHUB
 
