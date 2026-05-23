@@ -10,11 +10,11 @@ const input2 = ref('')
 const ip = ref('')
 
 async function getSetting() {
-  settings.value = await Setting("fetchSetting", "security")
+  settings.value = await Setting("fetchSettings", "security")
 }
 
 async function sendSetting() {
-  await Setting("editSetting", "security", settings.value)
+  await Setting("editSettings", "security", settings.value)
 }
 
 </script>
@@ -30,33 +30,33 @@ async function sendSetting() {
         <mdui-card variant="outlined">
           <p>后台登录密码</p>
           <mdui-text-field type="password" variant="outlined"
-                           @change="settings[0][0] = sha256($event.target.value)"
+                           @change="settings.password_hash = sha256($event.target.value)"
                            toggle-password label="密码"></mdui-text-field>
           <p>允许登录后台的IP</p>
           <mdui-text-field variant="outlined" label="输入*为该子段都可以使用" clearable
-                           @input="input1 = $event.target.value" :value="input1">
-            <mdui-button-icon slot="end-icon" icon="add" @click="()=>{if (input1!=='') settings[1].push(input1);input1=''}"></mdui-button-icon>
+                            @input="input1 = $event.target.value" :value="input1">
+            <mdui-button-icon slot="end-icon" icon="add" @click="()=>{if (input1!=='') settings.dashboard_allowed_ips.push(input1);input1=''}"></mdui-button-icon>
           </mdui-text-field>
           <div class="list">
             <mdui-list>
-              <mdui-list-item v-for="(item, index) in settings?settings[1]:[]" nonclickable>
+              <mdui-list-item v-for="(item, index) in settings?.dashboard_allowed_ips || []" nonclickable>
                 {{ item }}
-                <mdui-button-icon slot="end-icon" icon="delete" @click="()=>{if (settings[1].length>1) settings[1].splice(index, 1)}"></mdui-button-icon>
+                <mdui-button-icon slot="end-icon" icon="delete" @click="()=>{if (settings.dashboard_allowed_ips.length>1) settings.dashboard_allowed_ips.splice(index, 1)}"></mdui-button-icon>
               </mdui-list-item>
             </mdui-list>
           </div>
-          <mdui-button @click="settings[1].push(ip)">添加本机IP</mdui-button>
+          <mdui-button @click="settings.dashboard_allowed_ips.push(ip)">添加本机IP</mdui-button>
           <mdui-divider></mdui-divider>
           <p>可以使用urlAPI的网站（防盗）</p>
           <mdui-text-field variant="outlined" label="输入*为该子域都可以使用" clearable
-                           @input="input2 = $event.target.value" :value="input2">
-            <mdui-button-icon slot="end-icon" icon="add" @click="()=>{if (input2!=='') settings[2].push(input2);input2=''}"></mdui-button-icon>
+                            @input="input2 = $event.target.value" :value="input2">
+            <mdui-button-icon slot="end-icon" icon="add" @click="()=>{if (input2!=='') settings.allowed_referers.push(input2);input2=''}"></mdui-button-icon>
           </mdui-text-field>
           <div class="list">
             <mdui-list>
-              <mdui-list-item v-for="(item, index) in settings?settings[2]:[]" nonclickable>
+              <mdui-list-item v-for="(item, index) in settings?.allowed_referers || []" nonclickable>
                 {{ item }}
-                <mdui-button-icon slot="end-icon" icon="delete" @click="()=>{if (settings[2].length>1) settings[2].splice(index, 1)}"></mdui-button-icon>
+                <mdui-button-icon slot="end-icon" icon="delete" @click="()=>{if (settings.allowed_referers.length>1) settings.allowed_referers.splice(index, 1)}"></mdui-button-icon>
               </mdui-list-item>
             </mdui-list>
           </div>

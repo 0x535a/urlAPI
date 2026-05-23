@@ -23,11 +23,11 @@ async function newRepo() {
 }
 
 async function getSetting() {
-  settings.value = await Setting("fetchSetting", "rand")
+  settings.value = await Setting("fetchSettings", "rand")
   await getRepos()
 }
 async function sendSetting() {
-  await Setting("editSetting", "rand", settings.value)
+  await Setting("editSettings", "rand", settings.value)
 }
 </script>
 
@@ -41,15 +41,15 @@ async function sendSetting() {
       <mdui-list-item nonclickable>
         <mdui-card variant="outlined">
           <p>总开关</p>
-          <mdui-radio-group :value="settings?settings[0][0]:'false'"
-                            @change="settings[0][0]=$event.target.value"
+          <mdui-radio-group :value="String(settings?.enabled ?? false)"
+                            @change="settings.enabled=$event.target.value === 'true'"
                             style="margin-top: 0">
             <mdui-radio value="true">开启</mdui-radio>
             <mdui-radio value="false">关闭</mdui-radio>
           </mdui-radio-group>
           <p>默认API</p>
-          <mdui-radio-group :value="settings?settings[0][3]:'github'"
-                            @change="settings[0][3]=$event.target.value"
+          <mdui-radio-group :value="settings?.default_api || 'github'"
+                            @change="settings.default_api=$event.target.value"
                             style="margin-top: 0">
             <mdui-radio value="github">Github</mdui-radio>
             <mdui-radio value="gitee">Gitee</mdui-radio>
@@ -77,12 +77,12 @@ async function sendSetting() {
           <mdui-divider></mdui-divider>
           <p>Github随机图片中RAW网址</p>
           <mdui-text-field variant="outlined" label="反代地址"
-                           :value="settings?settings[0][1]:''"
-                           @change="settings[0][1] = $event.target.value"></mdui-text-field>
+                           :value="settings?.source_rewrite_from || ''"
+                           @change="settings.source_rewrite_from = $event.target.value"></mdui-text-field>
           <p>生成失败时返回的图片</p>
           <mdui-text-field variant="outlined" label="URL"
-                           :value="settings?settings[0][2]:''"
-                           @change="settings[0][2] = $event.target.value"></mdui-text-field>
+                           :value="settings?.fallback_image_url || ''"
+                           @change="settings.fallback_image_url = $event.target.value"></mdui-text-field>
           <mdui-button @click="sendSetting()">确认</mdui-button>
         </mdui-card>
       </mdui-list-item>

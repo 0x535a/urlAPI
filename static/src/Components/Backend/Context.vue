@@ -6,11 +6,11 @@ import {Setting} from "@/js/util.js";
 const settings = ref()
 
 async function getSetting() {
-  settings.value = await Setting("fetchSetting", "contxt")
+  settings.value = await Setting("fetchSettings", "contxt")
 }
 
 async function sendSetting() {
-  await Setting("editSetting", "contxt", settings.value)
+  await Setting("editSettings", "contxt", settings.value)
 }
 
 </script>
@@ -26,20 +26,20 @@ async function sendSetting() {
         <mdui-card variant="outlined">
           <p>这里设置提示词语境及具体的提示词</p>
           <mdui-text-field variant="outlined" label="生成的语境"
-                           :value="settings?settings[0][0]:''"
-                           @change="settings[0][0] = $event.target.value"></mdui-text-field>
+                            :value="settings?.generation_context || ''"
+                            @change="settings.generation_context = $event.target.value"></mdui-text-field>
           <mdui-text-field variant="outlined" label="总结的语境"
-                           :value="settings?settings[0][1]:''"
-                           @change="settings[0][1] = $event.target.value"></mdui-text-field>
+                            :value="settings?.summary_context || ''"
+                            @change="settings.summary_context = $event.target.value"></mdui-text-field>
           <mdui-text-field variant="outlined" label="生成笑话的提示词 (laugh)"
-                           :value="settings?settings[1][0]:''"
-                           @change="settings[1][0] = $event.target.value"></mdui-text-field>
+                            :value="settings?.templates?.laugh || ''"
+                            @change="settings.templates.laugh = $event.target.value"></mdui-text-field>
           <mdui-text-field variant="outlined" label="生成诗句的提示词 (poem)"
-                           :value="settings?settings[1][1]:''"
-                           @change="settings[1][1] = $event.target.value"></mdui-text-field>
+                            :value="settings?.templates?.poem || ''"
+                            @change="settings.templates.poem = $event.target.value"></mdui-text-field>
           <mdui-text-field variant="outlined" label="生成鸡汤的提示词 (sentence)"
-                           :value="settings?settings[1][2]:''"
-                           @change="settings[1][2] = $event.target.value"></mdui-text-field>
+                            :value="settings?.templates?.sentence || ''"
+                            @change="settings.templates.sentence = $event.target.value"></mdui-text-field>
           <mdui-button @click="sendSetting()">确认</mdui-button>
         </mdui-card>
       </mdui-list-item>

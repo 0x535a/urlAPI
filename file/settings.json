@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "providers": {
+    "openai": {
+      "api_key": "",
+      "text_model": "gpt-4o",
+      "summary_model": "gpt-4o-mini",
+      "image_model": "dall-e-3",
+      "image_size": "1024x1024",
+      "endpoint": "https://api.openai.com/v1/chat/completions"
+    },
+    "deepseek": {
+      "api_key": "",
+      "text_model": "deepseek-chat",
+      "summary_model": "deepseek-chat",
+      "endpoint": "https://api.deepseek.com/chat/completions"
+    },
+    "alibaba": {
+      "api_key": "",
+      "text_model": "deepseek-v3",
+      "summary_model": "qwen-turbo",
+      "image_model": "wanx2.1-t2i-turbo",
+      "image_size": "1024*768",
+      "endpoint": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+    },
+    "otherapi": {
+      "api_key": "",
+      "text_model": "",
+      "summary_model": "",
+      "endpoint": ""
+    }
+  },
+  "features": {
+    "text_enabled": false,
+    "image_enabled": false,
+    "web_img_enabled": false,
+    "random_enabled": false
+  },
+  "text": {
+    "generation_api": "alibaba",
+    "summary_api": "alibaba",
+    "cache_minutes": 60,
+    "fallback_image_url": "https://raw.githubusercontent.com/stephen-zeng/img/master/fallback.png",
+    "enabled_prompt_keys": [],
+    "accepted_prompt_glob": []
+  },
+  "image": {
+    "api": "alibaba",
+    "cache_minutes": 60,
+    "fallback_image_url": "https://raw.githubusercontent.com/stephen-zeng/urlAPI/img/master/fallback.png",
+    "accepted_prompt_glob": []
+  },
+  "web": {
+    "summary_api": "alibaba",
+    "cache_minutes": 10,
+    "fallback_image_url": "https://raw.githubusercontent.com/stephen-zeng/urlAPI/img/master/fallback.png",
+    "repo_token": "",
+    "youtube_token": "",
+    "allowed_hosts": []
+  },
+  "random": {
+    "source_rewrite_from": "https://raw.githubusercontent.com",
+    "fallback_image_url": "https://raw.githubusercontent.com/stephen-zeng/urlAPI/master/fallback.png",
+    "default_api": "github"
+  },
+  "security": {
+    "dashboard_password_hash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
+    "dashboard_allowed_ips": ["*"],
+    "allowed_referers": ["localhost"]
+  },
+  "prompts": {
+    "generation_context": "你是一个助手，需要根据提示词写出对应的语句。语句中不要有空格，不要有换行。不要打招呼，直接给出答案。",
+    "summary_context": "你是一个助手，需要根据提示词进行总结。总结中不要有空格，不要有换行。不要打招呼，直接给出答案。",
+    "templates": {
+      "laugh": "讲一个笑话，中文，不要换行，需要句中有标点符号",
+      "poem": "做几句诗歌，中文，不要换行，需要句中有标点符号",
+      "sentence": "写几句心灵鸡汤，中文，不要换行，需要句中有标点符号"
+    }
+  },
+  "task": {
+    "except_domains": ["localhost"],
+    "except_infos": []
+  }
+}
