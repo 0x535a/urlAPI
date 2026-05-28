@@ -4,6 +4,7 @@ go 1.26.2
 
 require (
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
+	github.com/dlclark/regexp2 v1.11.5
 	github.com/gin-contrib/cors v1.7.7
 	github.com/gin-gonic/gin v1.12.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0

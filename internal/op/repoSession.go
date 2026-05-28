@@ -2,6 +2,7 @@ package op
 
 import (
 	"encoding/json"
+
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
@@ -28,6 +29,7 @@ func newRepo(info *Session) error {
 	default:
 		err = errors.WithStack(errors.New(info.RepoAPI + " is not supported"))
 	}
+	content = util.LinkFilter(content)
 	jsonString, err := json.Marshal(content)
 	if err != nil {
 		return err
@@ -68,6 +70,7 @@ func refreshRepo(info *Session) error {
 	default:
 		err = errors.WithStack(errors.New(info.RepoAPI + " is not supported"))
 	}
+	content = util.LinkFilter(content)
 	jsonString, err := json.Marshal(content)
 	if err != nil {
 		return errors.WithStack(err)

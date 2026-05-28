@@ -1,13 +1,14 @@
 package util
 
 import (
-	"github.com/golang/freetype"
-	"github.com/golang/freetype/truetype"
 	"log"
 	"net"
 	"net/http"
 	"time"
 	"urlAPI/file"
+
+	"github.com/golang/freetype"
+	"github.com/golang/freetype/truetype"
 )
 
 var (
@@ -46,9 +47,11 @@ func init() {
 }
 
 type RegionResp struct {
-	IPData struct {
-		Info1 string `json:"info1"`
-	} `json:"ipdata"`
+	Data struct {
+		Country  string `json:"country"`
+		Province string `json:"province"`
+		City     string `json:"city"`
+	} `json:"data"`
 }
 
 var TypeMap = map[string]string{
