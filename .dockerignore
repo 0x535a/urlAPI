@@ -5,3 +5,11 @@
 /assets
 /tmp
 /coverage
+.env
+.env.*
+!.env.example
+/.cross
+/.go
+/bin
+/packages
+/data

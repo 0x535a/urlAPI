@@ -112,7 +112,7 @@ docker run -d --name urlapi-frontend -p 8080:80 -e BACKEND_URL=http://your-backe
 + arm版本的镜像为`0w0w0/urlapi-arm`
 
 # 二进制文件
-可以到action里面寻找最新的build，也可以去release里面寻找稳定的build
+可以到 [GitLab 流水线](https://gitlab.com/stephenzeng/urlAPI/-/pipelines) 下载构建产物，也可以到 [Releases](https://gitlab.com/stephenzeng/urlAPI/-/releases) 下载稳定版本及 `checksums.txt`。
 
 # 注册为systemctl服务
 下面是`/etc/systemd/system/urlAPI.service`模板

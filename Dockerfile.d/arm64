@@ -1,19 +1,25 @@
-FROM golang:1.26.2-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.26.2-bookworm AS builder
 WORKDIR /app
-RUN apk add --no-cache gcc musl-dev
+
+ARG GOPROXY=https://proxy.golang.org,direct
+RUN curl --http1.1 --fail --silent --show-error --location --retry 3 \
+    https://musl.cc/aarch64-linux-musl-cross.tgz -o /tmp/arm-musl.tgz \
+    && echo "c909817856d6ceda86aa510894fa3527eac7989f0ef6e87b5721c58737a06c38  /tmp/arm-musl.tgz" | sha256sum -c - \
+    && tar -xzf /tmp/arm-musl.tgz -C /opt \
+    && rm /tmp/arm-musl.tgz
 
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-ENV CGO_ENABLED=1 GOOS=linux GOARCH=arm64
-
-RUN go build -o urlAPI .
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=arm64 \
+    CC=/opt/aarch64-linux-musl-cross/bin/aarch64-linux-musl-gcc \
+    CGO_LDFLAGS="-static" go build -o urlAPI .
 
 FROM alpine:3.23
 WORKDIR /app
 
-RUN apk add --no-cache ca-certificates
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 COPY --from=builder /app/urlAPI .
 EXPOSE 2233

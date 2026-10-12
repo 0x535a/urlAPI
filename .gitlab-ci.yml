@@ -1,0 +1,129 @@
+stages:
+  - test
+  - build
+  - release
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_TAG =~ /^v/'
+    - when: never
+
+default:
+  tags:
+    - self-hosted
+
+variables:
+  GOPROXY: https://goproxy.cn,direct
+  ALPINE_MIRROR: https://mirrors.ustc.edu.cn/alpine
+  CGO_ENABLED: "1"
+
+test:backend:
+  stage: test
+  image: golang:1.26.2-bookworm
+  script:
+    - go mod download
+    - go test ./...
+    - go build ./...
+
+test:frontend:
+  stage: test
+  image: node:22-alpine
+  script:
+    - cd static
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - static/dist/
+    expire_in: 90 days
+
+build:linux-windows:
+  stage: build
+  image: golang:1.26.2-bookworm
+  needs:
+    - job: test:backend
+      artifacts: false
+    - job: test:frontend
+      artifacts: true
+  script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends musl-tools file zip xz-utils
+    - . ci/setup-cross.sh
+    - sh ci/build-binaries.sh linux windows
+  artifacts:
+    name: "urlAPI-${CI_COMMIT_TAG}-linux-windows"
+    paths:
+      - packages/
+    expire_in: 90 days
+
+.docker:
+  stage: build
+  image: docker:29-cli
+  environment:
+    name: DOCKERHUB
+  variables:
+    DOCKER_HOST: unix:///var/run/docker.sock
+  resource_group: "docker-${DOCKER_REPOSITORY}-${CI_COMMIT_TAG}"
+  script:
+    - |
+      : "${DOCKERHUB_USERNAME:?Set DOCKERHUB_USERNAME in GitLab CI/CD variables}"
+      : "${DOCKERHUB_TOKEN:?Set DOCKERHUB_TOKEN in GitLab CI/CD variables}"
+      export DOCKER_CONFIG="$(mktemp -d)"
+      trap 'rm -rf "$DOCKER_CONFIG"' EXIT
+      printf '%s' "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+      image="${DOCKERHUB_USERNAME}/${DOCKER_REPOSITORY}"
+      docker buildx build \
+        --platform "linux/${ARCH}" \
+        --file "Dockerfile.d/${DOCKERFILE}" \
+        --build-arg "GOPROXY=${GOPROXY}" \
+        --build-arg "ALPINE_MIRROR=${ALPINE_MIRROR}" \
+        --provenance=false \
+        --tag "${image}:${CI_COMMIT_TAG}" \
+        --tag "${image}:latest" \
+        --push .
+
+docker:backend:
+  extends: .docker
+  needs:
+    - job: test:backend
+      artifacts: false
+    - job: test:frontend
+      artifacts: true
+  parallel:
+    matrix:
+      - ARCH: amd64
+        DOCKERFILE: amd64
+        DOCKER_REPOSITORY: urlapi
+      - ARCH: arm64
+        DOCKERFILE: arm64
+        DOCKER_REPOSITORY: urlapi-arm
+
+docker:frontend:
+  extends: .docker
+  needs:
+    - job: test:frontend
+      artifacts: false
+  parallel:
+    matrix:
+      - ARCH: amd64
+        DOCKERFILE: frontend-amd64
+        DOCKER_REPOSITORY: urlapi-frontend
+      - ARCH: arm64
+        DOCKERFILE: frontend-arm64
+        DOCKER_REPOSITORY: urlapi-frontend-arm
+
+release:
+  stage: release
+  image: python:3.13-alpine
+  variables:
+    GIT_DEPTH: "0"
+  resource_group: "release-${CI_COMMIT_TAG}"
+  needs:
+    - job: build:linux-windows
+      artifacts: true
+  before_script:
+    - sed -i "s|https://dl-cdn.alpinelinux.org/alpine|${ALPINE_MIRROR}|g" /etc/apk/repositories
+    - apk add --no-cache git
+    - git fetch --tags
+  script:
+    - python ci/create-release.py

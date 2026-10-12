@@ -9,4 +9,7 @@
 urlAPI
 /AGENT
 /data
+/.cross
+/.go
+/packages
 
