@@ -41,7 +41,8 @@ def main():
         capture_output=True, text=True,
     )
     revision = f"{previous.stdout.strip()}..{tag}" if previous.returncode == 0 else tag
-    notes = subprocess.check_output(
+    notes_path = Path("releases") / f"{tag}.md"
+    notes = notes_path.read_text() if notes_path.is_file() else subprocess.check_output(
         ["git", "log", "--format=- %s (%h)", revision], text=True,
     ).strip()
     links = []
